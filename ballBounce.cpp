@@ -80,12 +80,12 @@ bool loadMedia() {
 	bool success = true;
 
 	//Load object texture
-	if( !gPlatformTexture.loadFromFile( "platform.bmp" ) ) {
+	if( !gPlatformTexture.loadFromFile( "platform2.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}
 
-	if( !gBallTexture.loadFromFile( "ball.bmp" ) ) {
+	if( !gBallTexture.loadFromFile( "ball2.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}

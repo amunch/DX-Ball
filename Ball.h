@@ -11,8 +11,8 @@
 class Ball {
         public:
                 //Dimensions of the ball
-                static const int BALL_WIDTH=20;
-                static const int BALL_HEIGHT=20;
+                static const int BALL_WIDTH=10;
+                static const int BALL_HEIGHT=10;
                 //Max total velocity of the ball
                 static const int BALL_VEL=10;
                 //Constructor to initialize variables

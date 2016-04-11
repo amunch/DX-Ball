@@ -11,8 +11,8 @@ class Platform {
 	
 	public:
 		//The dimensions of the platform
-		static const int PLATFORM_WIDTH = 100;
-		static const int PLATFORM_HEIGHT = 20;
+		static const int PLATFORM_WIDTH = 84;
+		static const int PLATFORM_HEIGHT = 11;
 		//Maximum x axis velocity of the platform
 		static const int PLATFORM_VEL = 10;
 		//Initializes the variables

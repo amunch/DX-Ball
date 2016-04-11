@@ -1,7 +1,12 @@
 all: ballBounce
 
-ballBounce: ballBounce.cpp
-	g++ -lSDL -lSDL2_image ballBounce.cpp -o ballBounce
+ballBounce: ballBounce.o LTexture.o
+	g++ -lSDL2 -lSDL2_image ballBounce.o LTexture.o -o ballBounce
+
+ballBounce.o: ballBounce.cpp
+	g++ -lSDL2 -lSDL2_image -c ballBounce.cpp 
+LTexture.o: LTexture.cpp
+	g++ -lSDL2 -lSDL2_image -c LTexture.cpp
 
 clean: 
-	rm ballBounce
+	rm ballBounce *.o

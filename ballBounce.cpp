@@ -102,7 +102,7 @@ bool loadMedia(Brick* bricks[]) {
 		success = false;
 	}
 
-	if( !gBrickTexture.loadFromFile( "sprites/platform.bmp" ) ) {
+	if( !gBrickTexture.loadFromFile( "sprites/BrickSheet.bmp" ) ) {
                 printf( "Failed to load brick texture!\n" );
                 success = false;
         }

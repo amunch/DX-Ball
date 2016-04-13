@@ -22,8 +22,8 @@ using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
-const int BRICK_WIDTH = 10;
-const int BRICK_HEIGHT = 5;
+const int BRICK_WIDTH = 20;
+const int BRICK_HEIGHT = 10;
 
 const int TOTAL_BRICKS = 10;
 
@@ -44,6 +44,8 @@ LTexture gPlatformTexture;
 LTexture gBallTexture;
 LTexture gBrickTexture;
 LTexture gBoxTexture;
+
+SDL_Rect BrickClips[TOTAL_BRICKS];
 
 bool init() {
 	//Initialization flag
@@ -83,8 +85,8 @@ bool init() {
 					success = false;
 				}
 			}
-		}
-	}
+		}	
+	}	
 	return success;
 }
 
@@ -175,13 +177,21 @@ bool setBricks(Brick* bricks[]) {
                                 bricksLoaded = false;
                                 break;
 			}
-
 			x += BRICK_WIDTH;
-			y += BRICK_HEIGHT;
-	
+			if(x > SCREEN_WIDTH) {
+				x = 0;
+				y += BRICK_HEIGHT;
+			}
 		}
 	}
 	//At this point, we have created objects for each of the bricks... including their location and type.
+	if(bricksLoaded) {
+		BrickClips[0].x = 40;
+		BrickClips[0].y = 0;
+		BrickClips[0].w = BRICK_WIDTH;
+		BrickClips[0].h = BRICK_HEIGHT;
+	}
+
 	map.close();
 	return bricksLoaded;
 }

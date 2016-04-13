@@ -6,7 +6,10 @@
 #include "LTexture.h"
 #include "Brick.h"
 
+const int TOTAL_BRICKS = 10;
+
 extern LTexture gBrickTexture;
+extern SDL_Rect BrickClips[TOTAL_BRICKS];
 
 Brick::Brick(int x, int y, int brickType) {
 	Box.x = x;
@@ -19,7 +22,7 @@ Brick::Brick(int x, int y, int brickType) {
 }
 
 void Brick::render() {
-	gBrickTexture.render(Box.x, Box.y);
+	gBrickTexture.render(Box.x, Box.y, &BrickClips[0]);
 }
 
 int Brick::getType() {

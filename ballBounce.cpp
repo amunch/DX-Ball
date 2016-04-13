@@ -22,10 +22,16 @@ using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
-const int BRICK_WIDTH = 20;
+const int BRICK_WIDTH = 30;
 const int BRICK_HEIGHT = 10;
 
-const int TOTAL_BRICKS = 10;
+const int TOTAL_BRICKS = 30;
+
+const int BRICK_NONE = 0;
+const int BRICK_BLUE = 1;
+const int BRICK_RED = 2;
+const int BRICK_GREEN = 3;
+const int BRICK_PINK = 4;
 
 //Starts up SDL and creates window
 bool init();
@@ -186,10 +192,25 @@ bool setBricks(Brick* bricks[]) {
 	}
 	//At this point, we have created objects for each of the bricks... including their location and type.
 	if(bricksLoaded) {
-		BrickClips[0].x = 0;
-		BrickClips[0].y = 0;
-		BrickClips[0].w = BRICK_WIDTH;
-		BrickClips[0].h = BRICK_HEIGHT;
+		BrickClips[BRICK_BLUE].x = 0;
+		BrickClips[BRICK_BLUE].y = 0;
+		BrickClips[BRICK_BLUE].w = BRICK_WIDTH;
+		BrickClips[BRICK_BLUE].h = BRICK_HEIGHT;
+		
+		BrickClips[BRICK_RED].x = 30;
+		BrickClips[BRICK_RED].y = 0;
+                BrickClips[BRICK_RED].w = BRICK_WIDTH;
+                BrickClips[BRICK_RED].h = BRICK_HEIGHT;
+
+		BrickClips[BRICK_GREEN].x = 60;
+		BrickClips[BRICK_GREEN].y = 0;
+                BrickClips[BRICK_GREEN].w = BRICK_WIDTH;
+                BrickClips[BRICK_GREEN].h = BRICK_HEIGHT;
+
+		BrickClips[BRICK_PINK].x = 90;
+		BrickClips[BRICK_PINK].y = 0;
+                BrickClips[BRICK_PINK].w = BRICK_WIDTH;
+                BrickClips[BRICK_PINK].h = BRICK_HEIGHT;	
 	}
 
 	map.close();
@@ -254,7 +275,9 @@ int main( int argc, char* args[] ) {
 					box.render(); 
 				}
 				for(int i = 0; i < TOTAL_BRICKS; i++) {
-					brickSet[i]->render();
+					if(brickSet[i]->getType() != 0) {	
+						brickSet[i]->render();
+					}
 				}
 
 				//Update screen

@@ -22,7 +22,7 @@ Brick::Brick(int x, int y, int brickType) {
 }
 
 void Brick::render() {
-	gBrickTexture.render(Box.x, Box.y, &BrickClips[0]);
+	gBrickTexture.render(Box.x, Box.y, &BrickClips[type]);
 }
 
 int Brick::getType() {

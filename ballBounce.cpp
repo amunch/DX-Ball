@@ -186,7 +186,7 @@ bool setBricks(Brick* bricks[]) {
 	}
 	//At this point, we have created objects for each of the bricks... including their location and type.
 	if(bricksLoaded) {
-		BrickClips[0].x = 40;
+		BrickClips[0].x = 0;
 		BrickClips[0].y = 0;
 		BrickClips[0].w = BRICK_WIDTH;
 		BrickClips[0].h = BRICK_HEIGHT;
@@ -223,7 +223,7 @@ int main( int argc, char* args[] ) {
 			Ball ball;
 		
 			Box box(20,20);
-			int showBox=1;
+			int showBox = 1;
 
 			//While application is running
 			while( !quit ) {

@@ -14,6 +14,7 @@
 #include "Platform.h"
 #include "Ball.h"
 #include "Brick.h"
+#include "Box.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ SDL_Renderer* gRenderer = NULL;
 LTexture gPlatformTexture;
 LTexture gBallTexture;
 LTexture gBrickTexture;
+LTexture gBoxTexture;
 
 bool init() {
 	//Initialization flag
@@ -112,6 +114,10 @@ bool loadMedia(Brick* bricks[]) {
 		success = false;
 	}
 	
+	if(!gBoxTexture.loadFromFile("sprites/box.bmp")) {
+		printf("Failed to load box!\n");
+		success = false;
+	}
 	return success;
 }
 
@@ -205,6 +211,9 @@ int main( int argc, char* args[] ) {
 
 			//the ball that will be bouncing around
 			Ball ball;
+		
+			Box box(20,20);
+			int showBox=1;
 
 			//While application is running
 			while( !quit ) {
@@ -220,7 +229,10 @@ int main( int argc, char* args[] ) {
 				//Move the objects
 				platform.move();
 				ball.move(platform);
-
+				if(showBox) {
+					showBox = box.move();
+					showBox = box.hitPlatform(platform);
+				}
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 				SDL_RenderClear( gRenderer );
@@ -228,7 +240,9 @@ int main( int argc, char* args[] ) {
 				//Render objects
 				platform.render();
 				ball.render();
-
+				if(showBox) { 
+					box.render(); 
+				}
 				for(int i = 0; i < TOTAL_BRICKS; i++) {
 					brickSet[i]->render();
 				}

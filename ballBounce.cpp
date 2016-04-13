@@ -92,17 +92,17 @@ bool loadMedia(Brick* bricks[]) {
 	bool success = true;
 
 	//Load object texture
-	if( !gPlatformTexture.loadFromFile( "platform2.bmp" ) ) {
+	if( !gPlatformTexture.loadFromFile( "sprites/platform2.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}
 
-	if( !gBallTexture.loadFromFile( "ball2.bmp" ) ) {
+	if( !gBallTexture.loadFromFile( "sprites/ball2.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}
 
-	if( !gBrickTexture.loadFromFile( "platform.bmp" ) ) {
+	if( !gBrickTexture.loadFromFile( "sprites/platform.bmp" ) ) {
                 printf( "Failed to load brick texture!\n" );
                 success = false;
         }
@@ -144,7 +144,7 @@ bool setBricks(Brick* bricks[]) {
 	//Brick placement offsets.
 	int x = 0; int y = 0;
 	
-	ifstream map("Bricks.map");
+	ifstream map("maps/BricksTest.map");
 	
 	if(map == NULL) {
 		cout << "Could not open map" << endl;

@@ -8,21 +8,32 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string>
+#include <iostream>
 
 #include "LTexture.h"
 #include "Platform.h"
 #include "Ball.h"
+#include "Brick.h"
+
+using namespace std;
 
 //Screen dimension global constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+const int BRICK_WIDTH = 10;
+const int BRICK_HEIGHT = 5;
+
+const int TOTAL_BRICKS = 10;
+
 //Starts up SDL and creates window
 bool init();
 //Loads media
-bool loadMedia();
+bool loadMedia(Brick* bricks[]);
 //Frees media and shuts down SDL
-void close();
+void close(Brick* bricks[]);
+//Create an array of Brick objects
+bool setBricks(Brick* bricks[]);
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 //The window renderer
@@ -30,6 +41,7 @@ SDL_Renderer* gRenderer = NULL;
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
 LTexture gBallTexture;
+LTexture gBrickTexture;
 
 bool init() {
 	//Initialization flag
@@ -75,7 +87,7 @@ bool init() {
 }
 
 
-bool loadMedia() {
+bool loadMedia(Brick* bricks[]) {
 	//Loading success flag
 	bool success = true;
 
@@ -89,13 +101,32 @@ bool loadMedia() {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}
+
+	if( !gBrickTexture.loadFromFile( "platform.bmp" ) ) {
+                printf( "Failed to load brick texture!\n" );
+                success = false;
+        }
+	
+	if(!setBricks(bricks)) {
+		printf("Failed to set the Bricks!\n");
+		success = false;
+	}
+	
 	return success;
 }
 
-void close() {
+void close(Brick* bricks[]) {
+	for(int i = 0; i < TOTAL_BRICKS; i++) {
+		if(bricks[i] == NULL) {	
+			delete bricks[i];
+			bricks[i] == NULL;
+		}
+	}
+
 	//Free loaded images
 	gPlatformTexture.free();
 	gBallTexture.free();
+	gBrickTexture.free();
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -108,14 +139,58 @@ void close() {
 	SDL_Quit();
 }
 
+bool setBricks(Brick* bricks[]) {
+	bool bricksLoaded = true;
+	//Brick placement offsets.
+	int x = 0; int y = 0;
+	
+	ifstream map("Bricks.map");
+	
+	if(map == NULL) {
+		cout << "Could not open map" << endl;
+		bricksLoaded = false;
+	}
+	else {
+		for(int i = 0; i < TOTAL_BRICKS; i++) {	
+			int brickType = -1;	
+			map >> brickType;
+		
+			if(map.fail()) {
+				cout << "Error loading map: unexpected EOF" << endl;
+				bricksLoaded = false;
+				break;
+			}
+		
+			if(brickType >= 0) {	
+				bricks[i] = new Brick(x, y, brickType);
+			}
+			else {
+				cout << "Error Loading Map: invalid block type." << endl;
+                                bricksLoaded = false;
+                                break;
+			}
+
+			x += BRICK_WIDTH;
+			y += BRICK_HEIGHT;
+	
+		}
+	}
+	//At this point, we have created objects for each of the bricks... including their location and type.
+	map.close();
+	return bricksLoaded;
+}
+			
+
 int main( int argc, char* args[] ) {
 	//Start up SDL and create window
 	if( !init() ) {
 		printf( "Failed to initialize!\n" );
 	}
 	else {
+		Brick* brickSet[TOTAL_BRICKS];
+		
 		//Load media
-		if( !loadMedia() ) {
+		if( !loadMedia(brickSet) ) {
 			printf( "Failed to load media!\n" );
 		}
 		else {	
@@ -154,14 +229,16 @@ int main( int argc, char* args[] ) {
 				platform.render();
 				ball.render();
 
+				for(int i = 0; i < TOTAL_BRICKS; i++) {
+					brickSet[i]->render();
+				}
+
 				//Update screen
 				SDL_RenderPresent( gRenderer );
 			}
 		}
+		//Free resources and close SDL
+		close(brickSet);
 	}
-
-	//Free resources and close SDL
-	close();
-
 	return 0;
 }

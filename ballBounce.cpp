@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <time.h>
+#include <stdlib.h>
 
 #include "LTexture.h"
 #include "Platform.h"
@@ -278,11 +281,14 @@ int main( int argc, char* args[] ) {
 			//The platform that will be moving left and right on the screen
 			Platform platform;
 
+			srand(time(NULL));
 			//the ball that will be bouncing around
 			Ball ball;
+			vector<Ball> ballVec;
+			ballVec.push_back(ball);
 		
-			Box box(20,20);
-			int showBox = 1;
+			Box box(700,700);
+			int showBox = 0;
 
 			//While application is running
 			while( !quit ) {
@@ -300,10 +306,34 @@ int main( int argc, char* args[] ) {
 				}
 				//Move the objects
 				platform.move();
-				ball.move(platform, brickSet);
+				if(ball.move(platform, brickSet) && box.offScreen()) {
+					int boxX = ball.getXPos(); int boxY = ball.getYPos();
+					//so it doesn't appear off screen
+					if(boxX<19) {
+						boxX=19;
+					} else if(boxX>SCREEN_WIDTH-19) {
+						boxX=SCREEN_WIDTH-19;
+					}
+					if(boxY<19) {
+						boxY=19;
+					} else if(boxY>SCREEN_HEIGHT-19) {
+						boxY=SCREEN_HEIGHT-19;
+					}
+					box.setPos(boxX,boxY);
+					showBox=1;
+				}
 				if(showBox) {
 					showBox = box.move();
-					showBox = box.hitPlatform(platform);
+					if(box.hitPlatform(platform)) {
+						showBox = 0;
+						int powerUp = rand()%2;
+						if (powerUp!=0) {
+							platform.addPowerUp(powerUp); //add a random power up
+						} else {
+							Ball newBall;
+							ballVec.push_back(newBall);
+						}					
+					}
 				}
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -312,7 +342,13 @@ int main( int argc, char* args[] ) {
 				//Render objects
 				gBackground.render(0,0);
 				platform.render();
-				ball.render();
+				for(int j=0; j<ballVec.size(); j++) { //loop through vector of balls
+					if(!ballVec[j].checkDeath(platform)) { //if the ball is still good
+						ballVec[j].render(); //render it
+					} else { //ball below line
+						ballVec.erase(ballVec.begin()+j); //erase it from vector
+					}
+				}
 				if(showBox) { 
 					box.render(); 
 				}

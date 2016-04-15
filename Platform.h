@@ -23,6 +23,8 @@ class Platform {
 		void move();
 		//Shows the platform on the screen
 		void render();
+		//add power up
+		void addPowerUp(int);
 		//Get functions
 		int getXPos();
 		int getYPos();

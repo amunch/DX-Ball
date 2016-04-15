@@ -35,7 +35,7 @@ Ball::Ball() {
 	xVel = 5;
 }
 
-void Ball::move(Platform platform, Brick* bricks[]) {
+bool Ball::move(Platform platform, Brick* bricks[]) {
 	//Move the ball left or right
 	xPos += xVel;
 	yPos += yVel;
@@ -59,7 +59,7 @@ void Ball::move(Platform platform, Brick* bricks[]) {
     	//in x range
     	if ((xPos>=platform.getXPos())&&(xPos<=platform.getXPos()+platform.PLATFORM_WIDTH)) {
 		//in y range
-		if((yPos>=platform.getYPos()-5)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
+		if((yPos>=platform.getYPos()-15)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
              	//get middle of ball and platform
 	    		int midBall = xPos + (BALL_WIDTH/2);
 	     		int midPlat = platform.getXPos() + (platform.PLATFORM_WIDTH/2);
@@ -91,6 +91,7 @@ void Ball::move(Platform platform, Brick* bricks[]) {
 			}
 		}
     	} 
+	int powerUp=0;
 	//See if the Ball has hit any of the bricks.	
 	for(int i = 0; i < TOTAL_BRICKS; i++) {
 		if(bricks[i]->getType() > 0) {
@@ -98,11 +99,16 @@ void Ball::move(Platform platform, Brick* bricks[]) {
 				yPos -= yVel;
                 		yVel = -yVel;			
 				bricks[i]->setType(0);
+				powerUp = rand()%20;
 			}
 		}
 	}
 	ballBox.x = xPos;
         ballBox.y = yPos;
+	if(powerUp==10) { //5% chance at powerUp
+		return true;
+	}
+	return false;
 }
 
 bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
@@ -133,8 +139,24 @@ bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
 	return false;	
 }
 
+bool Ball::checkDeath(Platform platform) {
+	if(yPos>platform.getYPos()+platform.PLATFORM_HEIGHT) {
+		return true;
+	}
+	return false;
+}
+
 //Render the ball to the reason.
 void Ball::render() {
 	gBallTexture.render( xPos, yPos );
 }
 
+//get functions
+
+int Ball::getXPos() {
+	return xPos;
+}
+
+int Ball::getYPos() {
+	return yPos;
+}

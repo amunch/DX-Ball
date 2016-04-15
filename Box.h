@@ -23,6 +23,10 @@ class Box {
 		int hitPlatform(Platform);
                 //Shows the platform on the screen
                 void render();
+		//box if off the screen
+		bool offScreen();
+		//set position of box
+		void setPos(int,int);
         private:
                 //X and y position
                 int xPos, yPos;

@@ -63,3 +63,8 @@ int Platform::getXPos() {
 int Platform::getYPos() {
 	return mPosY;
 } 
+
+//add the power up
+void Platform::addPowerUp(int) {
+
+}

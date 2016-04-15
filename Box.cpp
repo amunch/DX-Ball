@@ -44,6 +44,19 @@ int Box::hitPlatform(Platform platform) {
 	return 1;
 }
 
+//reset position
+void Box::setPos(int x,int y) {
+	xPos=x; yPos=y;
+}
+
+//check if off screen
+bool Box::offScreen() {
+	if(yPos>SCREEN_HEIGHT) {
+		return true;
+	}
+	return false;
+}
+
 //Render the Box to the reason.
 void Box::render() {
 	gBoxTexture.render( xPos, yPos );

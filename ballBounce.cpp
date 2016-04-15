@@ -105,7 +105,7 @@ bool loadMedia(Brick* bricks[]) {
 	bool success = true;
 
 	//Load object texture
-	if( !gPlatformTexture.loadFromFile( "sprites/platform2.bmp" ) ) {
+	if( !gPlatformTexture.loadFromFile( "sprites/basicPlatform.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}
@@ -246,6 +246,28 @@ int main( int argc, char* args[] ) {
 
 			//Event handler
 			SDL_Event e;
+			SDL_Event titleEvent;
+			bool quitTitle = false;
+			LTexture gTitle;
+			gTitle.loadFromFile("sprites/titleScreen.bmp");
+			while (!quitTitle) {
+				while( SDL_PollEvent( &titleEvent ) != 0 ) {
+					//User requests quit
+					if( titleEvent.type == SDL_KEYDOWN ) {
+						if(titleEvent.key.keysym.sym==SDLK_RETURN)
+							quitTitle = true;
+					}	
+					if( titleEvent.type == SDL_QUIT ) {
+						quitTitle = true;
+						quit=true;
+					}
+				}
+				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+				SDL_RenderClear( gRenderer );
+				gTitle.render(0,0);
+				SDL_RenderPresent( gRenderer );
+				
+			}
 
 			//The platform that will be moving left and right on the screen
 			Platform platform;

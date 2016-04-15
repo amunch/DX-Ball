@@ -12,8 +12,8 @@
 class Box {
         public:
                 //Dimensions of the Box
-                static const int Box_WIDTH=30;
-                static const int Box_HEIGHT=30;
+                static const int Box_WIDTH=19;
+                static const int Box_HEIGHT=19;
                 //Max total velocity of the Box
                 static const int Box_VEL=2;
                 //Constructor to initialize variables

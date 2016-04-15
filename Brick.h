@@ -12,8 +12,8 @@ class Brick {
 		Brick(int x, int y, int brickType);
 		void render();
 		int getType();
+		void setType(int new_type);
 		SDL_Rect getBox();
-	
 	private:
 		
 		SDL_Rect Box;

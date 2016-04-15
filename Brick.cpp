@@ -29,6 +29,10 @@ int Brick::getType() {
 	return type;
 }
 
+void Brick::setType(int new_type) {
+	type = new_type;
+}
+
 SDL_Rect Brick::getBox() {
 	return Box;
 }

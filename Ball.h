@@ -4,6 +4,9 @@
 #include <string>
 
 #include "Platform.h"
+#include "Brick.h"
+
+extern const int TOTAL_BRICKS;
 
 #ifndef BALL_H
 #define BALL_H
@@ -18,8 +21,9 @@ class Ball {
                 //Constructor to initialize variables
                 Ball();
                 //Moves the ball automatically
-                void move(Platform p);
-
+                void move(Platform p, Brick* bricks[]);
+		//Check to see if the ball has hit any of the bricks.
+		bool brickCollision(SDL_Rect ball, SDL_Rect brick);
                 //Shows the platform on the screen
                 void render();
         private:
@@ -27,6 +31,7 @@ class Ball {
                 int xPos, yPos;
                 //Velocity of the ball in x and y directions
                 int xVel, yVel;
+		SDL_Rect ballBox;
 };
 
 #endif

@@ -19,7 +19,7 @@
 using namespace std;
 
 //Screen dimension global constants
-const int SCREEN_WIDTH = 640;
+const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 480;
 
 const int BRICK_WIDTH = 30;
@@ -184,7 +184,7 @@ bool setBricks(Brick* bricks[]) {
                                 break;
 			}
 			x += BRICK_WIDTH;
-			if(x > SCREEN_WIDTH) {
+			if(x >= SCREEN_WIDTH) {
 				x = 0;
 				y += BRICK_HEIGHT;
 			}
@@ -259,7 +259,7 @@ int main( int argc, char* args[] ) {
 				}
 				//Move the objects
 				platform.move();
-				ball.move(platform);
+				ball.move(platform, brickSet);
 				if(showBox) {
 					showBox = box.move();
 					showBox = box.hitPlatform(platform);

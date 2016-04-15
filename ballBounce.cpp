@@ -295,6 +295,9 @@ int main( int argc, char* args[] ) {
 					//Handle input for the platform movement
 					platform.handleEvent( e );
 				}
+				if(won(brickSet)) {
+					quit = true;
+				}
 				//Move the objects
 				platform.move();
 				ball.move(platform, brickSet);

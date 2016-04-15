@@ -116,7 +116,7 @@ bool loadMedia(Brick* bricks[]) {
 		success = false;
 	}
 
-	if( !gBackground.loadFromFile( "sprites/background.bmp" ) ) {
+	if( !gBackground.loadFromFile( "sprites/background.gif" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
 	}

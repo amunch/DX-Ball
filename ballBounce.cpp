@@ -25,7 +25,7 @@ const int SCREEN_HEIGHT = 480;
 const int BRICK_WIDTH = 30;
 const int BRICK_HEIGHT = 10;
 
-const int TOTAL_BRICKS = 30;
+const int TOTAL_BRICKS = 140;
 
 const int BRICK_NONE = 0;
 const int BRICK_BLUE = 1;
@@ -45,6 +45,9 @@ bool setBricks(Brick* bricks[]);
 SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
+//Check to see if the player has won
+bool won(Brick* bricks[]);
+
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
 LTexture gBallTexture;
@@ -186,7 +189,7 @@ bool setBricks(Brick* bricks[]) {
 			x += BRICK_WIDTH;
 			if(x >= SCREEN_WIDTH) {
 				x = 0;
-				y += BRICK_HEIGHT;
+	 			y += BRICK_HEIGHT;
 			}
 		}
 	}
@@ -216,7 +219,14 @@ bool setBricks(Brick* bricks[]) {
 	map.close();
 	return bricksLoaded;
 }
-			
+
+bool won(Brick* bricks[]) {
+	for(int i = 0; i < TOTAL_BRICKS; i++) {
+		if(bricks[i]->getType() > 0) {
+			return false;
+		}
+	}
+}			
 
 int main( int argc, char* args[] ) {
 	//Start up SDL and create window

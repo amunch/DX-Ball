@@ -31,8 +31,8 @@ Ball::Ball() {
 	ballBox.h = BALL_HEIGHT;
 
 	//Initialize the velocity to go diagonally right.
-	yVel = 1;
-	xVel = 1;
+	yVel = 5;
+	xVel = 5;
 }
 
 void Ball::move(Platform platform, Brick* bricks[]) {
@@ -42,9 +42,6 @@ void Ball::move(Platform platform, Brick* bricks[]) {
 
 	ballBox.x = xPos;
         ballBox.y = yPos;
-
-	cout << "x:" << ballBox.x << endl;
-	cout << "y:" << ballBox.y << endl;
 
 	//If the ball went too far to the left or right
 	if( ( xPos < 0 ) || ( xPos + BALL_WIDTH > SCREEN_WIDTH ) ) {
@@ -124,11 +121,13 @@ bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
 	topBrick = brick.y;
 	bottomBrick = brick.y + brick.h;
 
-	cout << brick.w << endl;
-	cout << brick.h << endl;
-
 	//If any of the sides of the ball are outside the sides of the brick, there is no collision.
+	//Collision with the Bottom:
 	if(topBall <= bottomBrick && rightBall >= leftBrick && leftBall <= rightBrick) {
+		return true;
+	}
+	//Collision with the Top
+	if(bottomBall >= topBrick && bottomBall <= bottomBrick && rightBall >= leftBrick && leftBall <= rightBrick) {	
 		return true;
 	}
 	return false;	

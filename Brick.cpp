@@ -8,6 +8,9 @@
 
 const int TOTAL_BRICKS = 10;
 
+const int BRICK_WIDTH = 30;
+const int BRICK_HEIGHT = 10;
+
 extern LTexture gBrickTexture;
 extern SDL_Rect BrickClips[TOTAL_BRICKS];
 
@@ -15,8 +18,8 @@ Brick::Brick(int x, int y, int brickType) {
 	Box.x = x;
 	Box.y = y;
 
-	Box.w = 10;
-	Box.h = 5;
+	Box.w = BRICK_WIDTH;
+	Box.h = BRICK_HEIGHT;
 
 	type = brickType;
 }

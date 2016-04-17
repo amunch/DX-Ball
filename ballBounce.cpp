@@ -292,6 +292,7 @@ int main( int argc, char* args[] ) {
 
 			//While application is running
 			while( !quit ) {
+				if(ballVec.size()<1) { quit=1; }
 				//Handle events on queue
 				while( SDL_PollEvent( &e ) != 0 ) {
 					//User requests quit
@@ -328,6 +329,7 @@ int main( int argc, char* args[] ) {
 					showBox = box.move();
 					if(box.hitPlatform(platform)) {
 						showBox = 0;
+						box.setPos(700,700);
 						int powerUp = rand()%2;
 						if (powerUp!=0) {
 							platform.addPowerUp(powerUp); //add a random power up
@@ -335,6 +337,8 @@ int main( int argc, char* args[] ) {
 							Ball newBall;
 							ballVec.push_back(newBall);
 						}					
+					} else if (box.offScreen()) {
+						showBox=0;
 					}
 				}
 				//Clear screen

@@ -59,7 +59,7 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
     	//in x range
     	if ((xPos>=platform.getXPos())&&(xPos<=platform.getXPos()+platform.PLATFORM_WIDTH)) {
 		//in y range
-		if((yPos>=platform.getYPos()-15)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
+		if((yPos>=platform.getYPos()-5)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
              	//get middle of ball and platform
 	    		int midBall = xPos + (BALL_WIDTH/2);
 	     		int midPlat = platform.getXPos() + (platform.PLATFORM_WIDTH/2);

@@ -37,11 +37,11 @@ int Box::hitPlatform(Platform platform) {
 	//in x range
 	if ((xPos>=platform.getXPos())&&(xPos<=platform.getXPos()+platform.PLATFORM_WIDTH)) {
 		//in y range
-		if((yPos>=platform.getYPos()-30)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
-			return 0;
+		if((yPos>=platform.getYPos()-19)&&(yPos<=platform.getYPos()+platform.PLATFORM_HEIGHT)) {
+			return 1;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 //reset position

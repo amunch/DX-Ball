@@ -22,7 +22,7 @@ extern LTexture gBallTexture;
 Ball::Ball() {
 	//Initialize where the ball will be at first.
 	xPos = SCREEN_WIDTH/2;
-	yPos = SCREEN_HEIGHT-100;
+	yPos = SCREEN_HEIGHT-200;
 
 	//Initialize the ball surrounding box to check for collisions.
 	ballBox.x = xPos;

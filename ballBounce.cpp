@@ -306,21 +306,23 @@ int main( int argc, char* args[] ) {
 				}
 				//Move the objects
 				platform.move();
-				if(ball.move(platform, brickSet) && box.offScreen()) {
-					int boxX = ball.getXPos(); int boxY = ball.getYPos();
-					//so it doesn't appear off screen
-					if(boxX<19) {
-						boxX=19;
-					} else if(boxX>SCREEN_WIDTH-19) {
-						boxX=SCREEN_WIDTH-19;
+				for(int g=0; g<ballVec.size(); g++) {
+					if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
+						int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
+						//so it doesn't appear off screen
+						if(boxX<19) {
+							boxX=19;
+						} else if(boxX>SCREEN_WIDTH-19) {
+							boxX=SCREEN_WIDTH-19;
+						}
+						if(boxY<19) {
+							boxY=19;
+						} else if(boxY>SCREEN_HEIGHT-19) {
+							boxY=SCREEN_HEIGHT-19;
+						}
+						box.setPos(boxX,boxY);
+						showBox=1;
 					}
-					if(boxY<19) {
-						boxY=19;
-					} else if(boxY>SCREEN_HEIGHT-19) {
-						boxY=SCREEN_HEIGHT-19;
-					}
-					box.setPos(boxX,boxY);
-					showBox=1;
 				}
 				if(showBox) {
 					showBox = box.move();

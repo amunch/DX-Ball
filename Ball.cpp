@@ -105,7 +105,7 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 	}
 	ballBox.x = xPos;
         ballBox.y = yPos;
-	if(powerUp==10) { //5% chance at powerUp
+	if(powerUp==5) { //5% chance at powerUp
 		return true;
 	}
 	return false;

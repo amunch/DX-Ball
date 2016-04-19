@@ -287,8 +287,7 @@ int main( int argc, char* args[] ) {
 			vector<Ball> ballVec;
 			ballVec.push_back(ball);
 		
-			Box box(700,700);
-			int showBox = 0;
+			Box box(700,700,0);
 
 			//While application is running
 			while( !quit ) {
@@ -310,26 +309,13 @@ int main( int argc, char* args[] ) {
 				for(int g=0; g<ballVec.size(); g++) {
 					if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
 						int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
-						//so it doesn't appear off screen
-						if(boxX<19) {
-							boxX=19;
-						} else if(boxX>SCREEN_WIDTH-19) {
-							boxX=SCREEN_WIDTH-19;
-						}
-						if(boxY<19) {
-							boxY=19;
-						} else if(boxY>SCREEN_HEIGHT-19) {
-							boxY=SCREEN_HEIGHT-19;
-						}
-						box.setPos(boxX,boxY);
-						showBox=1;
+						box.setPos(boxX,boxY,1);
 					}
 				}
-				if(showBox) {
-					showBox = box.move();
+				if(box.getShow()) {
+					box.setShow(box.move());
 					if(box.hitPlatform(platform)) {
-						showBox = 0;
-						box.setPos(700,700);
+						box.setPos(700,700,0);
 						int powerUp = rand()%2;
 						if (powerUp!=0) {
 							platform.addPowerUp(powerUp); //add a random power up
@@ -338,7 +324,7 @@ int main( int argc, char* args[] ) {
 							ballVec.push_back(newBall);
 						}					
 					} else if (box.offScreen()) {
-						showBox=0;
+						box.setShow(0);
 					}
 				}
 				//Clear screen
@@ -355,7 +341,7 @@ int main( int argc, char* args[] ) {
 						ballVec.erase(ballVec.begin()+j); //erase it from vector
 					}
 				}
-				if(showBox) { 
+				if(box.getShow()) { 
 					box.render(); 
 				}
 				for(int i = 0; i < TOTAL_BRICKS; i++) {

@@ -17,7 +17,7 @@ class Box {
                 //Max total velocity of the Box
                 static const int Box_VEL=3;
                 //Constructor to initialize variables
-                Box(int,int);
+                Box(int,int,int);
                 //Moves the Box automatically
                 int move();
 		int hitPlatform(Platform);
@@ -26,7 +26,10 @@ class Box {
 		//box if off the screen
 		bool offScreen();
 		//set position of box
-		void setPos(int,int);
+		void setPos(int,int,int);
+		//get and set for show box
+		void setShow(int);
+		int getShow();
         private:
                 //X and y position
                 int xPos, yPos;
@@ -34,6 +37,8 @@ class Box {
                 int xVel, yVel;
 		//the power up type
 		int powerUp;
+		// show the box
+		int showBox;
 };
 
 #endif

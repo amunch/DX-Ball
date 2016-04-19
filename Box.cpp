@@ -13,7 +13,7 @@ const int SCREEN_HEIGHT = 480;
 extern LTexture gBoxTexture;
 
 //Box functions
-Box::Box(int x, int y) {
+Box::Box(int x, int y, int s) {
 	//Initialize where the Box will be at first.
 	xPos = x;
 	yPos = y;
@@ -21,6 +21,8 @@ Box::Box(int x, int y) {
 	//Initialize the velocity to go diagonally right.
 	yVel = 1;
 	xVel = 0;
+
+	showBox=s;
 }
 
 int Box::move() {
@@ -45,8 +47,20 @@ int Box::hitPlatform(Platform platform) {
 }
 
 //reset position
-void Box::setPos(int x,int y) {
+void Box::setPos(int x,int y, int s) {
+	//so it doesn't appear off screen
+	if(x<19) {
+		x=19;
+	} else if(x>SCREEN_WIDTH-19) {
+		x=SCREEN_WIDTH-19;
+	}
+	if(y<19) {
+		y=19;
+	} else if(y>SCREEN_HEIGHT-19) {
+		y=SCREEN_HEIGHT-19;
+	}
 	xPos=x; yPos=y;
+	showBox=s;
 }
 
 //check if off screen
@@ -60,4 +74,13 @@ bool Box::offScreen() {
 //Render the Box to the reason.
 void Box::render() {
 	gBoxTexture.render( xPos, yPos );
+}
+
+//set function for show Box
+void Box::setShow(int s) {
+	showBox=s;
+}
+
+int Box::getShow() {
+	return showBox;
 }

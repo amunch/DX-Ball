@@ -49,15 +49,18 @@ int Box::hitPlatform(Platform platform) {
 //reset position
 void Box::setPos(int x,int y, int s) {
 	//so it doesn't appear off screen
-	if(x<19) {
-		x=19;
-	} else if(x>SCREEN_WIDTH-19) {
-		x=SCREEN_WIDTH-19;
-	}
-	if(y<19) {
-		y=19;
-	} else if(y>SCREEN_HEIGHT-19) {
-		y=SCREEN_HEIGHT-19;
+	if (x==700) {}
+	else {
+		if(x<19) {
+			x=19;
+		} else if(x>SCREEN_WIDTH-19) {
+			x=SCREEN_WIDTH-19;
+		}
+		if(y<19) {
+			y=19;
+		} else if(y>SCREEN_HEIGHT-19) {
+			y=SCREEN_HEIGHT-19;
+		}
 	}
 	xPos=x; yPos=y;
 	showBox=s;

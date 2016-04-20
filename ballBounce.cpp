@@ -28,7 +28,7 @@ const int SCREEN_HEIGHT = 480;
 const int BRICK_WIDTH = 30;
 const int BRICK_HEIGHT = 10;
 
-const int TOTAL_BRICKS = 140;
+const int TOTAL_BRICKS = 360;
 
 const int BRICK_NONE = 0;
 const int BRICK_BLUE = 1;
@@ -170,7 +170,7 @@ bool setBricks(Brick* bricks[]) {
 	//Brick placement offsets.
 	int x = 0; int y = 0;
 	
-	ifstream map("maps/BricksTest.map");
+	ifstream map("maps/NDMap.map");
 	
 	if(map == NULL) {
 		cout << "Could not open map" << endl;
@@ -332,7 +332,7 @@ int main( int argc, char* args[] ) {
 				SDL_RenderClear( gRenderer );
 
 				//Render objects
-				gBackground.render(0,0);
+//				gBackground.render(0,0);
 				platform.render();
 				for(int j=0; j<ballVec.size(); j++) { //loop through vector of balls
 					if(!ballVec[j].checkDeath(platform)) { //if the ball is still good

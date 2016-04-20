@@ -99,13 +99,13 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 				yPos -= yVel;
                 		yVel = -yVel;			
 				bricks[i]->setType(0);
-				powerUp = rand()%20;
+				powerUp = rand()%3;
 			}
 		}
 	}
 	ballBox.x = xPos;
         ballBox.y = yPos;
-	if(powerUp==5) { //5% chance at powerUp
+	if(powerUp==1) { //5% chance at powerUp
 		return true;
 	}
 	return false;

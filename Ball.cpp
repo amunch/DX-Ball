@@ -31,7 +31,7 @@ Ball::Ball() {
 	ballBox.h = BALL_HEIGHT;
 
 	//Initialize the velocity to go diagonally right.
-	yVel = 3;
+	yVel = 5;
 	xVel = 3;
 }
 
@@ -129,11 +129,7 @@ bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
 
 	//If any of the sides of the ball are outside the sides of the brick, there is no collision.
 	//Collision with the Bottom:
-	if(topBall <= bottomBrick && rightBall >= leftBrick && leftBall <= rightBrick) {
-		return true;
-	}
-	//Collision with the Top
-	if(bottomBall >= topBrick && bottomBall <= bottomBrick && rightBall >= leftBrick && leftBall <= rightBrick) {	
+	if(topBall <= bottomBrick && bottomBall >= topBrick && rightBall >= leftBrick && leftBall <= rightBrick) {
 		return true;
 	}
 	return false;	

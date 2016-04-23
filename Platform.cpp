@@ -74,6 +74,8 @@ void Platform::setLives(int l) {
 	lives=l;
 }
 //add the power up
-void Platform::addPowerUp(int) {
-
+void Platform::addPowerUp(int pu) {
+	if(pu==1) {
+		lives++;
+	}
 }

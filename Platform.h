@@ -31,6 +31,8 @@ class Platform {
 		//get and set for lives
 		int getLives();
 		void setLives(int);
+		//reset for next life
+		void reset();
 
 	private:
 		//The X and Y position of the platform

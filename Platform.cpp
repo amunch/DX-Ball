@@ -79,3 +79,10 @@ void Platform::addPowerUp(int pu) {
 		lives++;
 	}
 }
+//reset for next life
+void Platform::reset() {
+	mPosX = SCREEN_WIDTH/2;	
+	mPosY = SCREEN_HEIGHT-30;
+	mVelX = 0;
+	mVelY = 0;
+}

@@ -44,7 +44,7 @@ bool loadMedia(Brick* bricks[]);
 //Frees media and shuts down SDL
 void close(Brick* bricks[]);
 //Create an array of Brick objects
-bool setBricks(Brick* bricks[]);
+bool setBricks(Brick* bricks[],int f);
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 //The window renderer
@@ -134,10 +134,10 @@ bool loadMedia(Brick* bricks[]) {
                 success = false;
         }
 	
-	if(!setBricks(bricks)) {
+	/*if(!setBricks(bricks)) {
 		printf("Failed to set the Bricks!\n");
 		success = false;
-	}
+	}*/
 	
 	if(!gBoxTexture.loadFromFile("sprites/box.bmp")) {
 		printf("Failed to load box!\n");
@@ -170,12 +170,13 @@ void close(Brick* bricks[]) {
 	SDL_Quit();
 }
 
-bool setBricks(Brick* bricks[]) {
+bool setBricks(Brick* bricks[],int currentLvl) {
 	bool bricksLoaded = true;
 	//Brick placement offsets.
 	int x = 0; int y = 0;
-	
-	ifstream map("maps/NDMap.map");
+	string currlvl = static_cast<ostringstream*>( &(ostringstream() <<currentLvl) )->str(); //convert to string
+	string filename="maps/map"+currlvl+".map";	
+	ifstream map(filename.c_str());
 	
 	if(map == NULL) {
 		cout << "Could not open map" << endl;
@@ -386,20 +387,40 @@ int main( int argc, char* args[] ) {
 		}
 		else {	
 			int currentLevel=1;
+			int maxLevel=3;
+			bool wonGame=false; bool loseGame=false;
 			titleScreen(); //run the title screen
 
 			srand(time(NULL));
-			//The platform that will be moving left and right on the screen
 			Platform platform;
-			//the ball that will be bouncing around
 			Ball ball;
 			vector<Ball> ballVec;
 			ballVec.push_back(ball);
-		
 			Box box(700,700,0);
-			levelIntro(currentLevel);
-			runLevel(brickSet,box,platform,ballVec);
-			
+			while(!wonGame && !loseGame) {
+				levelIntro(currentLevel);
+				//The platform that will be moving left and right on the screen
+				platform.reset(); //reset the platform
+				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
+				//the ball that will be bouncing around
+				Ball newball; 
+				ballVec.clear(); //clear the vector and add one new ball
+				ballVec.push_back(newball);
+				box.setPos(700,700,0);	
+				setBricks(brickSet,currentLevel); //load new level
+				if(runLevel(brickSet,box,platform,ballVec)) { //level over
+					currentLevel++;//next level!
+					if(currentLevel>=maxLevel) { //finished all levels
+						wonGame=true; // won game
+					}
+				} else { //lost the level
+					//loseGame=true;
+					currentLevel++;//next level!
+					if(currentLevel>=maxLevel) { //finished all levels
+						wonGame=true; // won game
+					}
+				}
+			}	
 		}
 		//Free resources and close SDL
 		close(brickSet);

@@ -28,12 +28,17 @@ class Platform {
 		//Get functions
 		int getXPos();
 		int getYPos();
+		//get and set for lives
+		int getLives();
+		void setLives(int);
 
 	private:
 		//The X and Y position of the platform
 		int mPosX, mPosY;
 		//The velocity of the platform
 		int mVelX, mVelY;
+		//lives for the player
+		int lives;
 };
 
 #endif

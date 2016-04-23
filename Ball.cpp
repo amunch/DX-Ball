@@ -31,8 +31,8 @@ Ball::Ball() {
 	ballBox.h = BALL_HEIGHT;
 
 	//Initialize the velocity to go diagonally right.
-	yVel = 5;
-	xVel = 5;
+	yVel = 3;
+	xVel = 3;
 }
 
 bool Ball::move(Platform platform, Brick* bricks[]) {

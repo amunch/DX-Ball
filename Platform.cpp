@@ -19,6 +19,7 @@ Platform::Platform() {
 	//Initialize the velocity as 0.
 	mVelX = 0;
 	mVelY = 0;
+	lives=3;
 }
 
 void Platform::handleEvent( SDL_Event& e ) {
@@ -64,6 +65,14 @@ int Platform::getYPos() {
 	return mPosY;
 } 
 
+//get and set functions for lives
+int Platform::getLives() {
+	return lives;
+}
+
+void Platform::setLives(int l) {
+	lives=l;
+}
 //add the power up
 void Platform::addPowerUp(int) {
 

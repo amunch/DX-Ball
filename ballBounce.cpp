@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
+#include <sstream>
 #include <stdlib.h>
 
 #include "LTexture.h"
@@ -50,6 +51,10 @@ SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 //Check to see if the player has won
 bool won(Brick* bricks[]);
+//run each level
+bool runLevel(Brick* brickset[], Box box, Platform platform, vector<Ball> ballVec);
+//run the title screen
+void titleScreen();
 
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
@@ -235,7 +240,137 @@ bool won(Brick* bricks[]) {
 			return false;
 		}
 	}
-}			
+}
+
+bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec) {
+	//While application is running
+	SDL_Event e;
+	bool wonLvl = false;
+	bool quit=false;
+	while( !quit ) {
+		if(ballVec.size()<1) {
+			platform.setLives(platform.getLives()-1); //remove a life
+			if(platform.getLives()<1) {  //no lives left
+				quit=1;
+			} else { //still have lives left
+				Ball ball2; //add a new ball
+				ballVec.push_back(ball2);
+			} 
+		}
+		//Handle events on queue
+		while( SDL_PollEvent( &e ) != 0 ) {
+		//User requests quit
+			if( e.type == SDL_QUIT ) {
+				quit = true;
+			}
+			//Handle input for the platform movement
+			platform.handleEvent( e );
+		}
+		if(won(brickSet)) {
+			quit = true;
+			wonLvl=true;
+		}
+		//Move the objects
+		platform.move();
+		for(int g=0; g<ballVec.size(); g++) {
+			if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
+				int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
+				box.setPos(boxX,boxY,1);
+			}
+		}
+		if(box.getShow()) {
+			box.setShow(box.move());
+			if(box.hitPlatform(platform)) {
+				box.setPos(700,700,0);
+				int powerUp = rand()%2;
+				if (powerUp!=0) {
+					platform.addPowerUp(powerUp); //add a random power up
+					gPlatformTexture.loadFromFile("sprites/redPUPlatform.bmp");
+				} else {
+					Ball newBall;
+					ballVec.push_back(newBall);
+				}					
+			} else if (box.offScreen()) {
+				box.setShow(0);
+			}
+		}
+		//Clear screen
+		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
+		SDL_RenderClear( gRenderer );
+
+		//Render objects
+		//gBackground.render(0,0);
+		platform.render();
+		for(int j=0; j<ballVec.size(); j++) { //loop through vector of balls
+			if(!ballVec[j].checkDeath(platform)) { //if the ball is still good
+				ballVec[j].render(); //render it
+			} else { //ball below line
+				ballVec.erase(ballVec.begin()+j); //erase it from vector
+			}
+		}
+		if(box.getShow()) { 
+			box.render(); 
+		}
+		for(int i = 0; i < TOTAL_BRICKS; i++) {
+			if(brickSet[i]->getType() != 0) {	
+				brickSet[i]->render();
+			}
+		}
+
+		//Update screen
+		SDL_RenderPresent( gRenderer );
+	}
+	return wonLvl;
+}		
+
+void titleScreen() {
+	SDL_Event titleEvent; //event handler for title
+	bool quitTitle = false; //title loop condition
+	LTexture gTitle;
+	gTitle.loadFromFile("sprites/titleScreen.bmp"); //load picture
+	while (!quitTitle) {
+		while( SDL_PollEvent( &titleEvent ) != 0 ) {
+			//User requests quit
+			if( titleEvent.type == SDL_KEYDOWN ) {
+				if(titleEvent.key.keysym.sym==SDLK_RETURN) //pressed enter
+					quitTitle = true;
+				}	
+				if( titleEvent.type == SDL_QUIT ) {
+				quitTitle = true;
+			}
+		}
+		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
+		SDL_RenderClear( gRenderer );
+		gTitle.render(0,0); //show title screen
+		SDL_RenderPresent( gRenderer );
+		
+	}
+}
+
+void levelIntro(int currentLvl) {
+	SDL_Event lvlEvent; //event handler for title
+	bool quitLvl = false; //title loop condition
+	LTexture gLvl;
+	string currlvl = static_cast<ostringstream*>( &(ostringstream() <<currentLvl) )->str(); //convert to string
+	gLvl.loadFromFile("sprites/levelintro"+currlvl+".bmp"); //load picture
+	while (!quitLvl) {
+		while( SDL_PollEvent( &lvlEvent ) != 0 ) {
+			//User requests quit
+			if( lvlEvent.type == SDL_KEYDOWN ) {
+				if(lvlEvent.key.keysym.sym==SDLK_RETURN) //pressed enter
+					quitLvl = true;
+				}	
+				if( lvlEvent.type == SDL_QUIT ) {
+				quitLvl = true;
+			}
+		}
+		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
+		SDL_RenderClear( gRenderer );
+		gLvl.render(0,0); //show title screen
+		SDL_RenderPresent( gRenderer );
+		
+	}
+}	
 
 int main( int argc, char* args[] ) {
 	//Start up SDL and create window
@@ -250,109 +385,21 @@ int main( int argc, char* args[] ) {
 			printf( "Failed to load media!\n" );
 		}
 		else {	
-			//Main loop flag
-			bool quit = false;
-
-			//Event handler
-			SDL_Event e;
-			SDL_Event titleEvent;
-			bool quitTitle = false;
-			LTexture gTitle;
-			gTitle.loadFromFile("sprites/titleScreen.bmp");
-			while (!quitTitle) {
-				while( SDL_PollEvent( &titleEvent ) != 0 ) {
-					//User requests quit
-					if( titleEvent.type == SDL_KEYDOWN ) {
-						if(titleEvent.key.keysym.sym==SDLK_RETURN)
-							quitTitle = true;
-					}	
-					if( titleEvent.type == SDL_QUIT ) {
-						quitTitle = true;
-						quit=true;
-					}
-				}
-				SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
-				SDL_RenderClear( gRenderer );
-				gTitle.render(0,0);
-				SDL_RenderPresent( gRenderer );
-				
-			}
-
-			//The platform that will be moving left and right on the screen
-			Platform platform;
+			int currentLevel=1;
+			titleScreen(); //run the title screen
 
 			srand(time(NULL));
+			//The platform that will be moving left and right on the screen
+			Platform platform;
 			//the ball that will be bouncing around
 			Ball ball;
 			vector<Ball> ballVec;
 			ballVec.push_back(ball);
 		
 			Box box(700,700,0);
-
-			//While application is running
-			while( !quit ) {
-				if(ballVec.size()<1) { quit=1; }
-				//Handle events on queue
-				while( SDL_PollEvent( &e ) != 0 ) {
-					//User requests quit
-					if( e.type == SDL_QUIT ) {
-						quit = true;
-					}
-					//Handle input for the platform movement
-					platform.handleEvent( e );
-				}
-				if(won(brickSet)) {
-					quit = true;
-				}
-				//Move the objects
-				platform.move();
-				for(int g=0; g<ballVec.size(); g++) {
-					if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
-						int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
-						box.setPos(boxX,boxY,1);
-					}
-				}
-				if(box.getShow()) {
-					box.setShow(box.move());
-					if(box.hitPlatform(platform)) {
-						box.setPos(700,700,0);
-						int powerUp = rand()%2;
-						if (powerUp!=0) {
-							platform.addPowerUp(powerUp); //add a random power up
-						} else {
-							Ball newBall;
-							ballVec.push_back(newBall);
-						}					
-					} else if (box.offScreen()) {
-						box.setShow(0);
-					}
-				}
-				//Clear screen
-				SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
-				SDL_RenderClear( gRenderer );
-
-				//Render objects
-//				gBackground.render(0,0);
-				platform.render();
-				for(int j=0; j<ballVec.size(); j++) { //loop through vector of balls
-					if(!ballVec[j].checkDeath(platform)) { //if the ball is still good
-						ballVec[j].render(); //render it
-					} else { //ball below line
-						ballVec.erase(ballVec.begin()+j); //erase it from vector
-					}
-				}
-				if(box.getShow()) { 
-					box.render(); 
-				}
-				for(int i = 0; i < TOTAL_BRICKS; i++) {
-					if(brickSet[i]->getType() != 0) {	
-						brickSet[i]->render();
-					}
-				}
-
-				//Update screen
-				SDL_RenderPresent( gRenderer );
-			}
+			levelIntro(currentLevel);
+			runLevel(brickSet,box,platform,ballVec);
+			
 		}
 		//Free resources and close SDL
 		close(brickSet);

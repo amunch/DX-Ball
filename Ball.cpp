@@ -21,8 +21,8 @@ extern LTexture gBallTexture;
 //Ball functions
 Ball::Ball() {
 	//Initialize where the ball will be at first.
-	xPos = SCREEN_WIDTH/2;
-	yPos = SCREEN_HEIGHT-200;
+	xPos = SCREEN_WIDTH/2-150;
+	yPos = SCREEN_HEIGHT-300;
 
 	//Initialize the ball surrounding box to check for collisions.
 	ballBox.x = xPos;
@@ -31,7 +31,7 @@ Ball::Ball() {
 	ballBox.h = BALL_HEIGHT;
 
 	//Initialize the velocity to go diagonally right.
-	yVel = 5;
+	yVel = 3;
 	xVel = 3;
 }
 

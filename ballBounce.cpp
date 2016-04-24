@@ -254,6 +254,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 			if(platform.getLives()<1) {  //no lives left
 				quit=1;
 			} else { //still have lives left
+				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
 				Ball ball2; //add a new ball
 				ballVec.push_back(ball2);
 			} 

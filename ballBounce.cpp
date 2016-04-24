@@ -438,13 +438,10 @@ int main( int argc, char* args[] ) {
 						wonGame=true; // won game
 					}
 				} else { //lost the level
-					//loseGame=true;
-					currentLevel++;//next level!
-					if(currentLevel>=maxLevel) { //finished all levels
-						wonGame=true; // won game
-					}
+					loseGame=true;
 				}
-			}	
+			}
+				
 		}
 		//Free resources and close SDL
 		close(brickSet);

@@ -91,7 +91,7 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 			}
 		}
     	} 
-	int powerUp=0;
+	int hit=0;
 	//See if the Ball has hit any of the bricks.	
 	for(int i = 0; i < TOTAL_BRICKS; i++) {
 		if(bricks[i]->getType() > 0) {
@@ -99,13 +99,13 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 				yPos -= yVel;
                 		yVel = -yVel;			
 				bricks[i]->setType(bricks[i]->getType()-1);
-				powerUp = rand()%3;
+				hit =1;
 			}
 		}
 	}
 	ballBox.x = xPos;
         ballBox.y = yPos;
-	if(powerUp==1) { //5% chance at powerUp
+	if(hit==1) { //5% chance at powerUp
 		return true;
 	}
 	return false;

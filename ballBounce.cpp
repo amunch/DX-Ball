@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -58,7 +59,7 @@ bool won(Brick* bricks[]);
 //run each level
 bool runLevel(Brick* brickset[], Box box, Platform platform, vector<Ball> ballVec);
 //run the title screen
-void titleScreen();
+void titleScreen(string f);
 
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
@@ -66,6 +67,10 @@ LTexture gBallTexture;
 LTexture gBrickTexture;
 LTexture gBackground;
 LTexture gBoxTexture;
+LTexture gScoreText;
+LTexture gLivesText;
+TTF_Font *gFont = NULL;
+int score=0;
 
 SDL_Rect BrickClips[TOTAL_BRICKS];
 
@@ -104,6 +109,12 @@ bool init() {
 				int imgFlags = IMG_INIT_PNG;
 				if( !( IMG_Init( imgFlags ) & imgFlags ) ) {
 					printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+					success = false;
+				}
+				//Initialize SDL_ttf
+				if( TTF_Init() == -1 )
+				{
+					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
 					success = false;
 				}
 			}
@@ -147,6 +158,7 @@ bool loadMedia(Brick* bricks[]) {
 		printf("Failed to load box!\n");
 		success = false;
 	}
+	gFont = TTF_OpenFont( "Fonts/Sansation-Regular.ttf", 28 );
 	return success;
 }
 
@@ -157,6 +169,8 @@ void close(Brick* bricks[]) {
 			bricks[i] == NULL;
 		}
 	}
+	TTF_CloseFont( gFont );
+	gFont = NULL;
 
 	//Free loaded images
 	gPlatformTexture.free();
@@ -171,6 +185,7 @@ void close(Brick* bricks[]) {
 
 	//Quit SDL subsystems
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 }
 
@@ -245,6 +260,7 @@ bool won(Brick* bricks[]) {
 			return false;
 		}
 	}
+	return true;
 }
 
 bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec) {
@@ -261,7 +277,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 
 	while( !quit ) {
 		capTimer.start();
-		
+
 		if(ballVec.size()<1) {
 			platform.setLives(platform.getLives()-1); //remove a life
 			if(platform.getLives()<1) {  //no lives left
@@ -293,8 +309,12 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		platform.move();
 		for(int g=0; g<ballVec.size(); g++) {
 			if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
-				int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
-				box.setPos(boxX,boxY,1);
+				int powerup = rand()%3;
+				if (powerup==1) {
+					int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
+					box.setPos(boxX,boxY,1);
+				}
+				score++;
 			}
 		}
 		if(box.getShow()) {
@@ -335,7 +355,14 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				brickSet[i]->render();
 			}
 		}
-
+		//render text
+		SDL_Color textColor = { 0, 50, 150 };
+		string strScore = static_cast<ostringstream*>( &(ostringstream() <<score) )->str(); //convert to string
+		gScoreText.loadFromRenderedText("Score: "+strScore, textColor );
+		gScoreText.render(0,0); //render score text
+		string strLives = static_cast<ostringstream*>( &(ostringstream() <<platform.getLives()) )->str(); //convert to string
+		gLivesText.loadFromRenderedText("Lives: "+strLives,textColor);
+		gLivesText.render(SCREEN_WIDTH-100,0);
 		//Update screen
 		SDL_RenderPresent( gRenderer );
 		countedFrames++;
@@ -347,12 +374,12 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 	}
 	return wonLvl;
 }		
-
-void titleScreen() {
+//show the title screen
+void titleScreen(string file) {
 	SDL_Event titleEvent; //event handler for title
 	bool quitTitle = false; //title loop condition
 	LTexture gTitle;
-	gTitle.loadFromFile("sprites/titleScreen.bmp"); //load picture
+	gTitle.loadFromFile("sprites/"+file+".bmp"); //load picture
 	while (!quitTitle) {
 		while( SDL_PollEvent( &titleEvent ) != 0 ) {
 			//User requests quit
@@ -365,13 +392,20 @@ void titleScreen() {
 			}
 		}
 		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
-		SDL_RenderClear( gRenderer );
+		SDL_RenderClear( gRenderer ); //clear screen
 		gTitle.render(0,0); //show title screen
+		if(file!="titleScreen") { //render score
+			SDL_Color textColor = { 0, 50, 150 };
+			string strScore = static_cast<ostringstream*>( &(ostringstream() <<score) )->str(); //convert to string
+			gScoreText.loadFromRenderedText("Score: "+strScore, textColor );
+			gScoreText.render(SCREEN_WIDTH/2-50,300); //render score text
+		}
 		SDL_RenderPresent( gRenderer );
 		
 	}
 }
 
+//show the level intro screen
 void levelIntro(int currentLvl) {
 	SDL_Event lvlEvent; //event handler for title
 	bool quitLvl = false; //title loop condition
@@ -390,7 +424,7 @@ void levelIntro(int currentLvl) {
 			}
 		}
 		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
-		SDL_RenderClear( gRenderer );
+		SDL_RenderClear( gRenderer ); //clear screen
 		gLvl.render(0,0); //show title screen
 		SDL_RenderPresent( gRenderer );
 		
@@ -413,7 +447,7 @@ int main( int argc, char* args[] ) {
 			int currentLevel=1;
 			int maxLevel=3;
 			bool wonGame=false; bool loseGame=false;
-			titleScreen(); //run the title screen
+			titleScreen("titleScreen"); //run the title screen
 
 			srand(time(NULL));
 			Platform platform;
@@ -434,6 +468,7 @@ int main( int argc, char* args[] ) {
 				setBricks(brickSet,currentLevel); //load new level
 				if(runLevel(brickSet,box,platform,ballVec)) { //level over
 					currentLevel++;//next level!
+					score=score+100;
 					if(currentLevel>=maxLevel) { //finished all levels
 						wonGame=true; // won game
 					}
@@ -441,7 +476,11 @@ int main( int argc, char* args[] ) {
 					loseGame=true;
 				}
 			}
-				
+			if(wonGame) { //won the game
+				titleScreen("winscreen"); //reuse title screen to show win
+			} else { //lost the game
+				titleScreen("losescreen"); //reuse title screen to show lose
+			}	
 		}
 		//Free resources and close SDL
 		close(brickSet);

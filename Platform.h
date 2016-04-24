@@ -33,6 +33,9 @@ class Platform {
 		void setLives(int);
 		//reset for next life
 		void reset();
+		//get and set for score
+		int getScore();
+		void setScore(int);
 
 	private:
 		//The X and Y position of the platform
@@ -41,6 +44,7 @@ class Platform {
 		int mVelX, mVelY;
 		//lives for the player
 		int lives;
+		int score; //score for the player
 };
 
 #endif

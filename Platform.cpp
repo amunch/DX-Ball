@@ -2,12 +2,14 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string>
-
+#include <iostream>
 #include "Platform.h"
 #include "LTexture.h"
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 480;
+
+using namespace std;
 
 extern LTexture gPlatformTexture;
 
@@ -20,6 +22,7 @@ Platform::Platform() {
 	mVelX = 0;
 	mVelY = 0;
 	lives=3;
+	score=0;
 }
 
 void Platform::handleEvent( SDL_Event& e ) {
@@ -79,10 +82,20 @@ void Platform::addPowerUp(int pu) {
 		lives++;
 	}
 }
+//get and set for score
+int Platform::getScore() {
+	return score;
+}
+
+void Platform::setScore(int s) {
+	score=s;
+}
 //reset for next life
 void Platform::reset() {
 	mPosX = SCREEN_WIDTH/2;	
 	mPosY = SCREEN_HEIGHT-30;
 	mVelX = 0;
 	mVelY = 0;
+	cout<<score<<endl;
+	cout<<lives<<endl;
 }

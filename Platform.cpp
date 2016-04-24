@@ -96,6 +96,4 @@ void Platform::reset() {
 	mPosY = SCREEN_HEIGHT-30;
 	mVelX = 0;
 	mVelY = 0;
-	cout<<score<<endl;
-	cout<<lives<<endl;
 }

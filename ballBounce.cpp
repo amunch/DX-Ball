@@ -19,6 +19,7 @@
 #include "Ball.h"
 #include "Brick.h"
 #include "Box.h"
+#include "LTimer.h"
 
 using namespace std;
 
@@ -36,6 +37,9 @@ const int BRICK_BLUE = 1;
 const int BRICK_RED = 2;
 const int BRICK_GREEN = 3;
 const int BRICK_PINK = 4;
+
+const int SCREEN_FPS = 60;
+const int SCREEN_TICK_PER_FRAME = 1000 / SCREEN_FPS;
 
 //Starts up SDL and creates window
 bool init();
@@ -248,7 +252,16 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 	SDL_Event e;
 	bool wonLvl = false;
 	bool quit=false;
+	
+	LTimer fpsTimer;
+	LTimer capTimer;
+
+	int countedFrames = 0;
+	fpsTimer.start();	
+
 	while( !quit ) {
+		capTimer.start();
+		
 		if(ballVec.size()<1) {
 			platform.setLives(platform.getLives()-1); //remove a life
 			if(platform.getLives()<1) {  //no lives left
@@ -268,6 +281,10 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 			//Handle input for the platform movement
 			platform.handleEvent( e );
 		}
+
+		float avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.f);
+		if(avgFPS > 2000000) {avgFPS = 0;}
+
 		if(won(brickSet)) {
 			quit = true;
 			wonLvl=true;
@@ -321,6 +338,12 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 
 		//Update screen
 		SDL_RenderPresent( gRenderer );
+		countedFrames++;
+
+		int frameTicks = capTimer.getTicks();
+		if(frameTicks < SCREEN_TICK_PER_FRAME) {
+			SDL_Delay(SCREEN_TICK_PER_FRAME - frameTicks);
+		}
 	}
 	return wonLvl;
 }		

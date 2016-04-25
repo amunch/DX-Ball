@@ -1,10 +1,10 @@
-all: ballBounce
+all: dxBall
 
-ballBounce: ballBounce.o LTexture.o Platform.o Ball.o Brick.o Box.o LTimer.o
-	g++ -g -lSDL2 -lSDL2_ttf -lSDL2_image Ball.o Platform.o ballBounce.o LTexture.o LTimer.o Box.o Brick.o -o ballBounce
+dxBall: dxBall.o LTexture.o Platform.o Ball.o Brick.o Box.o LTimer.o
+	g++ -g -lSDL2 -lSDL2_ttf -lSDL2_image Ball.o Platform.o dxBall.o LTexture.o LTimer.o Box.o Brick.o -o dxBall
 
-ballBounce.o: ballBounce.cpp
-	g++ -lSDL2 -lSDL2_image -c ballBounce.cpp 
+dxBall.o: dxBall.cpp
+	g++ -lSDL2 -lSDL2_image -c dxBall.cpp 
 LTexture.o: LTexture.cpp
 	g++ -lSDL2 -lSDL2_ttf -lSDL2_image -c LTexture.cpp
 Platform.o: Platform.cpp
@@ -19,4 +19,4 @@ LTimer.o: LTimer.cpp
 	g++ -lSDL2 -lSDL2_image -c LTimer.cpp
 
 clean: 
-	rm ballBounce *.o
+	rm dxBall *.o

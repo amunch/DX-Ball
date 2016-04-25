@@ -123,6 +123,11 @@ void Platform::reset() {
 	mPosY = SCREEN_HEIGHT-30;
 	mVelX = 0;
 	mVelY = 0;
+<<<<<<< HEAD
 	hasGun=false;
 	bulletOnScreen=false;
+=======
+	cout<<score<<endl;
+	cout<<lives<<endl;
+>>>>>>> parent of ea55b7c... fixed one thing
 }

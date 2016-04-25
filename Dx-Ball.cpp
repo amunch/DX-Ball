@@ -1,7 +1,7 @@
-//ballBounce.cpp
+//Dx-Ball.cpp
 //Andy Munch and Mark Pruitt
 //Prints a ball bouncing and platform to the screen.  
-//Compile using 'g++ -lSDL -lSDL2_image ballBounce.cpp' or use provided Makefile
+//Compile using 'g++ -lSDL -lSDL2_image Dx-Ball.cpp' or use provided Makefile
 //Must be run locally on a student machine, do not run remotely (rendering error)
 
 #include <SDL2/SDL.h>
@@ -58,8 +58,10 @@ SDL_Renderer* gRenderer = NULL;
 bool won(Brick* bricks[]);
 //run each level
 bool runLevel(Brick* brickset[], Box box, Platform platform, vector<Ball> ballVec);
-//run the title screen
+//run the title screen/game over
 void titleScreen(string f);
+//wait for ball
+bool waitForNewBall();
 
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
@@ -67,10 +69,13 @@ LTexture gBallTexture;
 LTexture gBrickTexture;
 LTexture gBackground;
 LTexture gBoxTexture;
+LTexture gBulletTexure;
 LTexture gScoreText;
 LTexture gLivesText;
+LTexture gWaitText;
 TTF_Font *gFont = NULL;
-int score=0;
+int score=0; //to deal with scope
+int lives=3; //to deal with scope
 
 SDL_Rect BrickClips[TOTAL_BRICKS];
 
@@ -89,7 +94,7 @@ bool init() {
 			printf( "Warning: Linear texture filtering not enabled!" );
 		}
 		//Create window
-		gWindow = SDL_CreateWindow( "Bouncing Ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Dx-Ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL ) {
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
@@ -176,6 +181,12 @@ void close(Brick* bricks[]) {
 	gPlatformTexture.free();
 	gBallTexture.free();
 	gBrickTexture.free();
+	gBackground.free();
+	gBoxTexture.free();
+	gBulletTexure.free();
+	gScoreText.free();
+	gLivesText.free();
+	gWaitText.free();
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -253,16 +264,39 @@ bool setBricks(Brick* bricks[],int currentLvl) {
 	map.close();
 	return bricksLoaded;
 }
-
+//all the bricks are gone
 bool won(Brick* bricks[]) {
-	for(int i = 0; i < TOTAL_BRICKS; i++) {
-		if(bricks[i]->getType() > 0) {
+	for(int i = 0; i < TOTAL_BRICKS; i++) { //loop through
+		if(bricks[i]->getType() > 0) { //one is not 0
 			return false;
 		}
 	}
 	return true;
 }
 
+//wait for the user to want new ball
+bool waitForNewBall() {
+	bool quit=false;
+	SDL_Event e;
+	SDL_Color textColor = { 0, 50, 150 }; //text color
+	gWaitText.loadFromRenderedText("Press Enter for New Ball", textColor );
+	gWaitText.render(155,300); //render score text
+	SDL_RenderPresent( gRenderer );
+	while (!quit) {
+		while( SDL_PollEvent( &e ) != 0 ) {
+			//Handle events on queue
+			if( e.type == SDL_KEYDOWN ) {
+				if(e.key.keysym.sym==SDLK_RETURN) { //pressed enter
+						quit = true;
+				}	
+			} else if( e.type == SDL_QUIT ) { //want to quit game
+					return true;
+			}
+		}	
+	}
+	return false; //do not want to quit game
+}
+//basically main program for each level
 bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec) {
 	//While application is running
 	SDL_Event e;
@@ -276,15 +310,19 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 	fpsTimer.start();	
 
 	while( !quit ) {
-		capTimer.start();
+		capTimer.start(); //start timer
 
-		if(ballVec.size()<1) {
-			platform.setLives(platform.getLives()-1); //remove a life
-			if(platform.getLives()<1) {  //no lives left
+		if(ballVec.size()<1) { //if no more balls
+			lives--; //remove a life
+			if(lives<1) {  //no lives left
 				quit=1;
 			} else { //still have lives left
 				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
+				platform.setHasGun(false); //get rid of gun powerup
 				Ball ball2; //add a new ball
+				if(waitForNewBall()) { //wait for ball and check if wanted to quit
+					quit=1;
+				}
 				ballVec.push_back(ball2);
 			} 
 		}
@@ -301,7 +339,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		float avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.f);
 		if(avgFPS > 2000000) {avgFPS = 0;}
 
-		if(won(brickSet)) {
+		if(won(brickSet)) { //no more bricks so lvl done
 			quit = true;
 			wonLvl=true;
 		}
@@ -309,32 +347,34 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		platform.move();
 		for(int g=0; g<ballVec.size(); g++) {
 			if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
-				int powerup = rand()%3;
-				if (powerup==1) {
+				int powerup = rand()%3; //random number to get powerup
+				if (powerup==1) { //got box!
 					int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
 					box.setPos(boxX,boxY,1);
 				}
-				score++;
+				score=score+5;
 			}
 		}
-		if(box.getShow()) {
-			box.setShow(box.move());
-			if(box.hitPlatform(platform)) {
-				box.setPos(700,700,0);
-				int powerUp = rand()%2;
-				if (powerUp!=0) {
-					platform.addPowerUp(powerUp); //add a random power up
+		if(box.getShow()) { //box is on screen
+			box.setShow(box.move()); //move downwards
+			if(box.hitPlatform(platform)) { //platform hit box
+ 				box.setPos(700,700,0); //move box off screen
+				int powerUp = rand()%3; //what powerup
+ 				if (powerUp==0) {
+					lives++;
+				} else if (powerUp==1) {
 					gPlatformTexture.loadFromFile("sprites/redPUPlatform.bmp");
-				} else {
+					platform.addPowerUp(1);
+				} else { //extra ball
 					Ball newBall;
 					ballVec.push_back(newBall);
 				}					
-			} else if (box.offScreen()) {
+			} else if (box.offScreen()) { //ball is off screen so dont show
 				box.setShow(0);
 			}
 		}
 		//Clear screen
-		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
+		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 ); //black background
 		SDL_RenderClear( gRenderer );
 
 		//Render objects
@@ -347,20 +387,20 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				ballVec.erase(ballVec.begin()+j); //erase it from vector
 			}
 		}
-		if(box.getShow()) { 
+		if(box.getShow()) {  //box on screen
 			box.render(); 
 		}
 		for(int i = 0; i < TOTAL_BRICKS; i++) {
-			if(brickSet[i]->getType() != 0) {	
+			if(brickSet[i]->getType() != 0) { //if box is there	
 				brickSet[i]->render();
 			}
 		}
 		//render text
-		SDL_Color textColor = { 0, 50, 150 };
+		SDL_Color textColor = { 0, 50, 150 }; //text color
 		string strScore = static_cast<ostringstream*>( &(ostringstream() <<score) )->str(); //convert to string
 		gScoreText.loadFromRenderedText("Score: "+strScore, textColor );
 		gScoreText.render(0,0); //render score text
-		string strLives = static_cast<ostringstream*>( &(ostringstream() <<platform.getLives()) )->str(); //convert to string
+		string strLives = static_cast<ostringstream*>( &(ostringstream() <<lives) )->str(); //convert to string
 		gLivesText.loadFromRenderedText("Lives: "+strLives,textColor);
 		gLivesText.render(SCREEN_WIDTH-100,0);
 		//Update screen
@@ -467,8 +507,8 @@ int main( int argc, char* args[] ) {
 				box.setPos(700,700,0);	
 				setBricks(brickSet,currentLevel); //load new level
 				if(runLevel(brickSet,box,platform,ballVec)) { //level over
+					score=score+100*currentLevel; //add to the score
 					currentLevel++;//next level!
-					score=score+100;
 					if(currentLevel>=maxLevel) { //finished all levels
 						wonGame=true; // won game
 					}

@@ -23,6 +23,8 @@ Platform::Platform() {
 	mVelY = 0;
 	lives=3;
 	score=0;
+	hasGun=false;
+	bulletOnScreen=false;
 }
 
 void Platform::handleEvent( SDL_Event& e ) {
@@ -42,6 +44,13 @@ void Platform::handleEvent( SDL_Event& e ) {
         		case SDLK_RIGHT: mVelX -= PLATFORM_VEL; break;
       		}
     	}
+
+	//if space was pressed
+	else if (e.type == SDL_KEYDOWN) {
+		if(e.key.keysym.sym == SDLK_SPACE && hasGun && !bulletOnScreen) {
+			bulletOnScreen=true;
+		}
+	}
 }
 
 void Platform::move() {
@@ -79,7 +88,7 @@ void Platform::setLives(int l) {
 //add the power up
 void Platform::addPowerUp(int pu) {
 	if(pu==1) {
-		lives++;
+		hasGun=true;
 	}
 }
 //get and set for score
@@ -90,10 +99,30 @@ int Platform::getScore() {
 void Platform::setScore(int s) {
 	score=s;
 }
+
+//get and set for gun powerup
+bool Platform::getHasGun() {
+	return hasGun;
+}
+
+void Platform::setHasGun(bool s) {
+	hasGun=s;
+}
+//bullet
+bool Platform::getBulletOnScreen() {
+	return bulletOnScreen;
+}
+
+void Platform::setBulletOnScreen(bool s) {
+	bulletOnScreen=s;
+}
+
 //reset for next life
 void Platform::reset() {
 	mPosX = SCREEN_WIDTH/2;	
 	mPosY = SCREEN_HEIGHT-30;
 	mVelX = 0;
 	mVelY = 0;
+	hasGun=false;
+	bulletOnScreen=false;
 }

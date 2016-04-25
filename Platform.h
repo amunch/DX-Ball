@@ -36,6 +36,11 @@ class Platform {
 		//get and set for score
 		int getScore();
 		void setScore(int);
+		//get and set for gun powerup
+		void setHasGun(bool);
+		bool getHasGun();
+		void setBulletOnScreen(bool);
+		bool getBulletOnScreen();
 
 	private:
 		//The X and Y position of the platform
@@ -45,6 +50,9 @@ class Platform {
 		//lives for the player
 		int lives;
 		int score; //score for the player
+		//variables for gun powerup
+		bool hasGun;
+		bool bulletOnScreen;
 };
 
 #endif

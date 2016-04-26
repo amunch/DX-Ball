@@ -28,18 +28,18 @@ using namespace std;
 //Screen dimension global constants
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 480;
-
+//Brick width and height global constants.
 const int BRICK_WIDTH = 30;
 const int BRICK_HEIGHT = 10;
-
+//Max number of bricks to be rendered.
 const int TOTAL_BRICKS = 360;
-
+//Converts color to an integer at a global level.
 const int BRICK_NONE = 0;
 const int BRICK_BLUE = 1;
 const int BRICK_RED = 2;
 const int BRICK_GREEN = 3;
 const int BRICK_PINK = 4;
-
+//Global FPS declaration.
 const int SCREEN_FPS = 60;
 const int SCREEN_TICK_PER_FRAME = 1000 / SCREEN_FPS;
 
@@ -64,7 +64,7 @@ void titleScreen(string f);
 //wait for ball
 bool waitForNewBall(SDL_Event e);
 
-//Scene textures for the ball and the platform
+//Scene textures for the ball, platform, bricks, and text.
 LTexture gPlatformTexture;
 LTexture gBallTexture;
 LTexture gBrickTexture;
@@ -75,9 +75,10 @@ LTexture gScoreText;
 LTexture gLivesText;
 LTexture gWaitText;
 TTF_Font *gFont = NULL;
-int score=0; //to deal with scope
-int lives=3; //to deal with scope
+int score = 0; //to deal with scope
+int lives = 3; //to deal with scope
 
+//SDL_Rect used to determine how the sprite sheet will be clipped. 
 SDL_Rect BrickClips[TOTAL_BRICKS];
 
 bool init() {
@@ -132,7 +133,7 @@ bool init() {
 bool loadMedia(Brick* bricks[]) {
 	//Loading success flag
 	bool success = true;
-
+	//If any of the sprites fail to load, print the error and exit.
 	if( !gPlatformTexture.loadFromFile( "sprites/basicPlatform.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
@@ -156,23 +157,26 @@ bool loadMedia(Brick* bricks[]) {
 	if( !gBulletTexture.loadFromFile( "sprites/bullet.bmp" ) ) {
                 printf( "Failed to load bullet texture!\n" );      
 		success = false;
-      }
+        } 
 
 	if(!gBoxTexture.loadFromFile("sprites/box.bmp")) {
 		printf("Failed to load box!\n");
 		success = false;
 	}
+	//Initialize font, exit if not initialized properly.
 	gFont = TTF_OpenFont( "Fonts/Sansation-Regular.ttf", 28 );
 	return success;
 }
 
 void close(Brick* bricks[]) {
+	//Delete the brick objects.
 	for(int i = 0; i < TOTAL_BRICKS; i++) {
 		if(bricks[i] == NULL) {	
 			delete bricks[i];
 			bricks[i] == NULL;
 		}
 	}
+	//Close the font and derefrence the pointer.
 	TTF_CloseFont( gFont );
 	gFont = NULL;
 
@@ -203,6 +207,8 @@ bool setBricks(Brick* bricks[],int currentLvl) {
 	bool bricksLoaded = true;
 	//Brick placement offsets.
 	int x = 0; int y = 0;
+	
+	//Make sure you load the right map based on the current level.
 	string currlvl = static_cast<ostringstream*>( &(ostringstream() <<currentLvl) )->str(); //convert to string
 	string filename="maps/map"+currlvl+".map";	
 	ifstream map(filename.c_str());
@@ -213,25 +219,31 @@ bool setBricks(Brick* bricks[],int currentLvl) {
 	}
 	else {
 		for(int i = 0; i < TOTAL_BRICKS; i++) {	
+			//Instantiate the brick objects.
 			int brickType = -1;	
+			//Type is taken from the map.
 			map >> brickType;
 		
+			//If the map fails to proveide enough bricks, print the error.
 			if(map.fail()) {
 				cout << "Error loading map: unexpected EOF" << endl;
 				bricksLoaded = false;
 				break;
 			}
-		
-			if(brickType >= 0) {	
+			if(brickType >= 0 && brickType <= 4) {	
+				//If the brick type is a valid type, create a new brick object.
 				bricks[i] = new Brick(x, y, brickType);
 			}
 			else {
+				//If there are invalid bricks in the map, break and alert the user.
 				cout << "Error Loading Map: invalid block type." << endl;
                                 bricksLoaded = false;
                                 break;
 			}
+			//Go onto the next brick position.
 			x += BRICK_WIDTH;
 			if(x >= SCREEN_WIDTH) {
+				//If the brick reaches the end of the screen, go to the next row.
 				x = 0;
 	 			y += BRICK_HEIGHT;
 			}
@@ -239,11 +251,12 @@ bool setBricks(Brick* bricks[],int currentLvl) {
 	}
 	//At this point, we have created objects for each of the bricks... including their location and type.
 	if(bricksLoaded) {
+		//Pixel declarations for where on the brick sprite sheet each color brick is located.
 		BrickClips[BRICK_BLUE].x = 0;
 		BrickClips[BRICK_BLUE].y = 0;
 		BrickClips[BRICK_BLUE].w = BRICK_WIDTH;
 		BrickClips[BRICK_BLUE].h = BRICK_HEIGHT;
-		
+		//Each brick is 30 to the right of the other.
 		BrickClips[BRICK_RED].x = 30;
 		BrickClips[BRICK_RED].y = 0;
                 BrickClips[BRICK_RED].w = BRICK_WIDTH;
@@ -259,7 +272,7 @@ bool setBricks(Brick* bricks[],int currentLvl) {
                 BrickClips[BRICK_PINK].w = BRICK_WIDTH;
                 BrickClips[BRICK_PINK].h = BRICK_HEIGHT;	
 	}
-
+	//Close the map and return the bricks were properly loaded.
 	map.close();
 	return bricksLoaded;
 }
@@ -270,18 +283,24 @@ bool won(Brick* bricks[]) {
 			return false;
 		}
 	}
+	//Return true if all bricks are greater than 0.
 	return true;
 }
 
 //wait for the user to want new ball
 bool waitForNewBall(SDL_Event e) {
 	bool quit=false;
+
+	//Display the text when the user died, to press enter for a new ball.
 	SDL_Color textColor = { 0, 50, 150 }; //text color
 	gWaitText.loadFromRenderedText("Press Enter for New Ball", textColor );
-	gWaitText.render(155,300); //render score text
+	gWaitText.render(155,300); //Render text.
 	SDL_RenderPresent( gRenderer );
+
+	//Wait until the user inputs anything on their decision to quit or continue.
 	if(SDL_PollEvent(&e)) {};
 	while (!quit) {
+		//Clear the event queue if there is anything in it.
 		SDL_PumpEvents();
 		SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
 		while( SDL_PollEvent( &e ) != 0 ) {
@@ -297,38 +316,52 @@ bool waitForNewBall(SDL_Event e) {
 	}
 	return false; //do not want to quit game
 }
-//basically main program for each level
+
+//Basically the main program for each level
 bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec, Bullet bullet) {
 	//While application is running
 	SDL_Event e;
+
+	//Truth values on if the user has won or quit the game.
 	bool wonLvl = false;
-	bool quit=false;
+	bool quit = false;
 	
+	//Timers for use in limiting the FPS to 60
+	//This is used to prevent ball speedup as blocks do not need to be rendered.
 	LTimer fpsTimer;
 	LTimer capTimer;
-
 	int countedFrames = 0;
 	fpsTimer.start();	
+
 	while( !quit ) {
 		capTimer.start(); //start timer
 
-		if(ballVec.size()<1) { //if no more balls
+		//Run this sequence if there are no more balls on the screen.
+		if(ballVec.size() < 1) { //if no more balls
 			lives--; //remove a life
-			if(lives<1) {  //no lives left
-				quit=1;
+			if(lives < 1) {  //no lives left
+				quit = 1;
 			} else { //still have lives left
+				//Make sure platform events are clear.
 				platform.move();
 				platform.reset();
 				platform.handleEvent(e, bullet);		
+				
+				//Reload the platform and get rid of the gun powerup.
 				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
 				platform.setHasGun(false); //get rid of gun powerup
+
 				Ball ball2; //add a new ball
+
 				if(waitForNewBall(e)) { //wait for ball and check if wanted to quit
-					quit=1;
+					quit = 1;
 				}
+				
+				//Add the new ball to the ball vector.
 				ballVec.push_back(ball2);
 			} 
 		}
+
 		//Handle events on queue
 		while( SDL_PollEvent( &e ) != 0 ) {
 		//User requests quit
@@ -338,25 +371,34 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 			//Handle input for the platform movement
 			if(platform.handleEvent(e, bullet))
 				bullet.setPos(platform.getXPos() + 42, platform.getYPos(), true);
+			SDL_PumpEvents();
+	                SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
 		}
 
+		//Calculate the average FPS.
 		float avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.f);
 		if(avgFPS > 2000000) {avgFPS = 0;}
 
+		//If the level is won.
 		if(won(brickSet)) { //no more bricks so lvl done
+			//Set quit and won level to true
 			quit = true;
-			wonLvl=true;
+			wonLvl = true;
 		}
+		
 		//Move the objects
 		platform.move();
 		for(int g=0; g<ballVec.size(); g++) {
 			if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
-				int powerup = rand()%3; //random number to get powerup
+				int powerup = rand() % 4; //random number to get powerup
 				if (powerup==1) { //got box!
-					int boxX = ballVec[g].getXPos(); int boxY = ballVec[g].getYPos();
+					//Draw the box if the random number has given you a box.
+					int boxX = ballVec[g].getXPos(); 
+					int boxY = ballVec[g].getYPos();
 					box.setPos(boxX,boxY,1);
 				}
-				score=score+5;
+				//Increment the score by 5 every box hit.
+				score += 5;
 			}
 		}
 		if(box.getShow()) { //box is on screen
@@ -364,12 +406,16 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 			if(box.hitPlatform(platform)) { //platform hit box
  				box.setPos(700,700,0); //move box off screen
 				int powerUp = rand()%3; //what powerup
- 				if (powerUp==0) {
+ 				//Powerup that gives you a life.
+				if (powerUp==0) {
 					lives++;
-				} else if (powerUp==1) {
+				} 
+				//Powerup that gives you a gun.
+				else if (powerUp==1) {
 					gPlatformTexture.loadFromFile("sprites/redPUPlatform.bmp");
 					platform.setHasGun(true);
-				} else { //extra ball
+				} 
+				else { //extra ball
 					Ball newBall;
 					ballVec.push_back(newBall);
 				}					
@@ -377,13 +423,16 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				box.setShow(0);
 			}
 		}
+		
 		//handle the bullet
 		if(bullet.getShowBullet()) {
+			//Move the bullet using the velocities.
 			bullet.move();
 			if(bullet.hitBrick(brickSet)) { //hit a brick
 				bullet.setPos(700,700,false); //move it off screen
 			}
 		}
+		
 		//Clear screen
 		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 ); //black background
 		SDL_RenderClear( gRenderer );

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string>
 
+#include "Bullet.h"
+
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
@@ -18,13 +20,11 @@ class Platform {
 		//Initializes the variables
 		Platform();
 		//Takes key presses and adjusts the platform's velocity
-		void handleEvent( SDL_Event& e );
+		bool handleEvent( SDL_Event& e ,Bullet b);
 		//Moves the platform position
 		void move();
 		//Shows the platform on the screen
 		void render();
-		//add power up
-		void addPowerUp(int);
 		//Get functions
 		int getXPos();
 		int getYPos();
@@ -39,8 +39,6 @@ class Platform {
 		//get and set for gun powerup
 		void setHasGun(bool);
 		bool getHasGun();
-		void setBulletOnScreen(bool);
-		bool getBulletOnScreen();
 
 	private:
 		//The X and Y position of the platform
@@ -52,7 +50,6 @@ class Platform {
 		int score; //score for the player
 		//variables for gun powerup
 		bool hasGun;
-		bool bulletOnScreen;
 };
 
 #endif

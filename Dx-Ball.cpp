@@ -21,6 +21,7 @@
 #include "Brick.h"
 #include "Box.h"
 #include "LTimer.h"
+#include "Bullet.h"
 
 using namespace std;
 
@@ -57,11 +58,11 @@ SDL_Renderer* gRenderer = NULL;
 //Check to see if the player has won
 bool won(Brick* bricks[]);
 //run each level
-bool runLevel(Brick* brickset[], Box box, Platform platform, vector<Ball> ballVec);
+bool runLevel(Brick* brickset[], Box box, Platform platform, vector<Ball> ballVec, Bullet bullet);
 //run the title screen/game over
 void titleScreen(string f);
 //wait for ball
-bool waitForNewBall();
+bool waitForNewBall(SDL_Event e);
 
 //Scene textures for the ball and the platform
 LTexture gPlatformTexture;
@@ -69,7 +70,7 @@ LTexture gBallTexture;
 LTexture gBrickTexture;
 LTexture gBackground;
 LTexture gBoxTexture;
-LTexture gBulletTexure;
+LTexture gBulletTexture;
 LTexture gScoreText;
 LTexture gLivesText;
 LTexture gWaitText;
@@ -80,7 +81,6 @@ int lives=3; //to deal with scope
 SDL_Rect BrickClips[TOTAL_BRICKS];
 
 bool init() {
-	//Initialization flag
 	bool success = true;
 
 	//Initialize SDL
@@ -133,7 +133,6 @@ bool loadMedia(Brick* bricks[]) {
 	//Loading success flag
 	bool success = true;
 
-	//Load object texture
 	if( !gPlatformTexture.loadFromFile( "sprites/basicPlatform.bmp" ) ) {
 		printf( "Failed to load dot texture!\n" );
 		success = false;
@@ -150,15 +149,15 @@ bool loadMedia(Brick* bricks[]) {
 	}
 
 	if( !gBrickTexture.loadFromFile( "sprites/BrickSheet.bmp" ) ) {
-                printf( "Failed to load brick texture!\n" );
-                success = false;
+                printf( "Failed to load brick texture!\n" );      
+		success = false;
         }
 	
-	/*if(!setBricks(bricks)) {
-		printf("Failed to set the Bricks!\n");
+	if( !gBulletTexture.loadFromFile( "sprites/bullet.bmp" ) ) {
+                printf( "Failed to load bullet texture!\n" );      
 		success = false;
-	}*/
-	
+      }
+
 	if(!gBoxTexture.loadFromFile("sprites/box.bmp")) {
 		printf("Failed to load box!\n");
 		success = false;
@@ -183,7 +182,7 @@ void close(Brick* bricks[]) {
 	gBrickTexture.free();
 	gBackground.free();
 	gBoxTexture.free();
-	gBulletTexure.free();
+	gBulletTexture.free();
 	gScoreText.free();
 	gLivesText.free();
 	gWaitText.free();
@@ -275,14 +274,16 @@ bool won(Brick* bricks[]) {
 }
 
 //wait for the user to want new ball
-bool waitForNewBall() {
+bool waitForNewBall(SDL_Event e) {
 	bool quit=false;
-	SDL_Event e;
 	SDL_Color textColor = { 0, 50, 150 }; //text color
 	gWaitText.loadFromRenderedText("Press Enter for New Ball", textColor );
 	gWaitText.render(155,300); //render score text
 	SDL_RenderPresent( gRenderer );
+	if(SDL_PollEvent(&e)) {};
 	while (!quit) {
+		SDL_PumpEvents();
+		SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
 		while( SDL_PollEvent( &e ) != 0 ) {
 			//Handle events on queue
 			if( e.type == SDL_KEYDOWN ) {
@@ -297,7 +298,7 @@ bool waitForNewBall() {
 	return false; //do not want to quit game
 }
 //basically main program for each level
-bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec) {
+bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVec, Bullet bullet) {
 	//While application is running
 	SDL_Event e;
 	bool wonLvl = false;
@@ -308,7 +309,6 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 
 	int countedFrames = 0;
 	fpsTimer.start();	
-
 	while( !quit ) {
 		capTimer.start(); //start timer
 
@@ -317,10 +317,13 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 			if(lives<1) {  //no lives left
 				quit=1;
 			} else { //still have lives left
+				platform.move();
+				platform.reset();
+				platform.handleEvent(e, bullet);		
 				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
 				platform.setHasGun(false); //get rid of gun powerup
 				Ball ball2; //add a new ball
-				if(waitForNewBall()) { //wait for ball and check if wanted to quit
+				if(waitForNewBall(e)) { //wait for ball and check if wanted to quit
 					quit=1;
 				}
 				ballVec.push_back(ball2);
@@ -333,7 +336,8 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				quit = true;
 			}
 			//Handle input for the platform movement
-			platform.handleEvent( e );
+			if(platform.handleEvent(e, bullet))
+				bullet.setPos(platform.getXPos() + 42, platform.getYPos(), true);
 		}
 
 		float avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.f);
@@ -364,13 +368,20 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 					lives++;
 				} else if (powerUp==1) {
 					gPlatformTexture.loadFromFile("sprites/redPUPlatform.bmp");
-					platform.addPowerUp(1);
+					platform.setHasGun(true);
 				} else { //extra ball
 					Ball newBall;
 					ballVec.push_back(newBall);
 				}					
 			} else if (box.offScreen()) { //ball is off screen so dont show
 				box.setShow(0);
+			}
+		}
+		//handle the bullet
+		if(bullet.getShowBullet()) {
+			bullet.move();
+			if(bullet.hitBrick(brickSet)) { //hit a brick
+				bullet.setPos(700,700,false); //move it off screen
 			}
 		}
 		//Clear screen
@@ -390,6 +401,9 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		if(box.getShow()) {  //box on screen
 			box.render(); 
 		}
+		if(bullet.getShowBullet()) {
+			bullet.render();
+		}
 		for(int i = 0; i < TOTAL_BRICKS; i++) {
 			if(brickSet[i]->getType() != 0) { //if box is there	
 				brickSet[i]->render();
@@ -402,7 +416,8 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		gScoreText.render(0,0); //render score text
 		string strLives = static_cast<ostringstream*>( &(ostringstream() <<lives) )->str(); //convert to string
 		gLivesText.loadFromRenderedText("Lives: "+strLives,textColor);
-		gLivesText.render(SCREEN_WIDTH-100,0);
+		gLivesText.render(SCREEN_WIDTH-100,0);	
+	
 		//Update screen
 		SDL_RenderPresent( gRenderer );
 		countedFrames++;
@@ -492,6 +507,7 @@ int main( int argc, char* args[] ) {
 			srand(time(NULL));
 			Platform platform;
 			Ball ball;
+			Bullet bullet;
 			vector<Ball> ballVec;
 			ballVec.push_back(ball);
 			Box box(700,700,0);
@@ -504,9 +520,10 @@ int main( int argc, char* args[] ) {
 				Ball newball; 
 				ballVec.clear(); //clear the vector and add one new ball
 				ballVec.push_back(newball);
-				box.setPos(700,700,0);	
+				box.setPos(700, 700, 0);
+				bullet.setPos(700, 700, false);	
 				setBricks(brickSet,currentLevel); //load new level
-				if(runLevel(brickSet,box,platform,ballVec)) { //level over
+				if(runLevel(brickSet,box,platform,ballVec,bullet)) { //level over
 					score=score+100*currentLevel; //add to the score
 					currentLevel++;//next level!
 					if(currentLevel>=maxLevel) { //finished all levels

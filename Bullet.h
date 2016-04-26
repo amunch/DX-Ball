@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string>
 
+#include "Brick.h"
+
 #ifndef BULLET_H
 #define BULLET_H
 
@@ -17,15 +19,25 @@ class Bullet {
 		//Initializes the variables
 		Bullet();
 		//Moves the BULLET position
-		void move();
+		int move();
 		//Shows the BULLET on the screen
 		void render();
 		//hit the brick
+		bool hitBrick(Brick* brick[]);
+		//collision with bricks
+		bool brickCollision(SDL_Rect brick);
+		//set the position
+		void setPos(int,int,bool);
+		bool getShowBullet();
+		//off the screen
+		bool offScreen();
 	private:
 		//The X and Y position of the BULLET
-		int mPosX, mPosY;
+		int xPos, yPos;
 		//The velocity of the BULLET
-		int mVelX, mVelY;
+		int xVel, yVel;
+		//show bullet
+		bool showBullet;
 };
 
 #endif

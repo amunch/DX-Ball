@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Platform.h"
 #include "LTexture.h"
+#include "Bullet.h"
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 480;
@@ -24,16 +25,20 @@ Platform::Platform() {
 	lives=3;
 	score=0;
 	hasGun=false;
-	bulletOnScreen=false;
 }
 
-void Platform::handleEvent( SDL_Event& e ) {
+bool Platform::handleEvent( SDL_Event& e, Bullet b ) {
 	//If a key was pressed
 	if( e.type == SDL_KEYDOWN && e.key.repeat == 0 ) {
         	//Adjust the velocity
         	switch( e.key.keysym.sym ) {
         		case SDLK_LEFT: mVelX -= PLATFORM_VEL; break;
         		case SDLK_RIGHT: mVelX += PLATFORM_VEL; break;
+			case SDLK_SPACE: //space hit
+				if(hasGun && b.offScreen()) { //fire gun
+					return true;
+				}
+				break;
         	}
     	}
 	//If a key was released
@@ -44,13 +49,7 @@ void Platform::handleEvent( SDL_Event& e ) {
         		case SDLK_RIGHT: mVelX -= PLATFORM_VEL; break;
       		}
     	}
-
-	//if space was pressed
-	else if (e.type == SDL_KEYDOWN) {
-		if(e.key.keysym.sym == SDLK_SPACE && hasGun && !bulletOnScreen) {
-			bulletOnScreen=true;
-		}
-	}
+	return false;
 }
 
 void Platform::move() {
@@ -85,12 +84,6 @@ int Platform::getLives() {
 void Platform::setLives(int l) {
 	lives=l;
 }
-//add the power up
-void Platform::addPowerUp(int pu) {
-	if(pu==1) {
-		hasGun=true;
-	}
-}
 //get and set for score
 int Platform::getScore() {
 	return score;
@@ -108,15 +101,6 @@ bool Platform::getHasGun() {
 void Platform::setHasGun(bool s) {
 	hasGun=s;
 }
-//bullet
-bool Platform::getBulletOnScreen() {
-	return bulletOnScreen;
-}
-
-void Platform::setBulletOnScreen(bool s) {
-	bulletOnScreen=s;
-}
-
 //reset for next life
 void Platform::reset() {
 	mPosX = SCREEN_WIDTH/2;	
@@ -124,5 +108,4 @@ void Platform::reset() {
 	mVelX = 0;
 	mVelY = 0;
 	hasGun=false;
-	bulletOnScreen=false;
 }

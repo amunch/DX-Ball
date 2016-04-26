@@ -36,6 +36,8 @@ class Ball {
                 int xPos, yPos;
                 //Velocity of the ball in x and y directions
                 int xVel, yVel;
+		//SDL_Rect object to determine the edges of the ball.
+		//Used for collision purposes.
 		SDL_Rect ballBox;
 };
 

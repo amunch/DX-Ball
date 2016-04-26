@@ -16,7 +16,7 @@ const int SCREEN_HEIGHT = 480;
 const int PLATFORM_WIDTH = 80;
 
 extern const int TOTAL_BRICKS;
-
+//External textures and global variables stated in main.
 extern LTexture gBallTexture;
 
 //Ball functions
@@ -68,27 +68,28 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 				if(midBall<midPlat) {
 					xPos -=xVel;
 					yPos -=yVel;
-					xVel=-3 - (midPlat - midBall) / 10;
+					xVel=-3 - (midPlat - midBall) / 10; 
+					//If the ball hits on the edge of the platform, it will speed up in the x direction.
 					yVel=-yVel;
 		     		}
 				else {
-					yPos -=yVel;
-					xPos -=xVel;
-					yVel=-yVel;
+					yPos -= yVel;
+					xPos -= xVel;
+					yVel = -yVel;
 					xVel = 3 + (midBall - midPlat) / 10;
 		     		}
 	     		} 
 			else { //ball coming in from the right
 		     		if(midBall>=midPlat) {
-					xPos -=xVel;
-					yPos -=yVel;
+					xPos -= xVel;
+					yPos -= yVel;
 					xVel= 3 + (midBall - midPlat) / 10;
-					yVel=-yVel;
+					yVel= -yVel;
 			     	} 
 				else {
-					yPos -=yVel;
-					xPos -=xVel;
-					yVel=-yVel;
+					yPos -= yVel;
+					xPos -= xVel;
+					yVel = -yVel;
 					xVel = -3 - (midPlat - midBall) / 10;
 		     		}
 			}
@@ -97,17 +98,19 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 	int hit=0;
 	//See if the Ball has hit any of the bricks.	
 	for(int i = 0; i < TOTAL_BRICKS; i++) {
+		//Check all of the boxes to see if they get hit.
 		if(bricks[i]->getType() > 0) {
 			if(brickCollision(ballBox, bricks[i]->getBox())) {
 				yPos -= yVel;
-                		yVel = -yVel;			
+                		yVel = -yVel;
+				//Decrement the type such that it loses health and becomes closer to 0 'dead'			
 				bricks[i]->setType(bricks[i]->getType()-1);
-				hit =1;
+				hit = 1;
 			}
 		}
 	}
 	ballBox.x = xPos;
-        ballBox.y = yPos;
+        ballBox.y = yPos; //Update the upper left corner position of the wall.
 	if(hit==1) { //5% chance at powerUp
 		return true;
 	}
@@ -119,6 +122,7 @@ bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
 	int rightBall, rightBrick;
 	int topBall, topBrick;
 	int bottomBall, bottomBrick;
+	//Define the ball sides using the SDL_Rect data members.
 	//Calculate the sides of the ball.
 	leftBall = ball.x;
 	rightBall = ball.x + ball.w;
@@ -138,7 +142,8 @@ bool Ball::brickCollision(SDL_Rect ball, SDL_Rect brick) {
 	return false;	
 }
 
-bool Ball::checkDeath(Platform platform) {
+bool Ball::checkDeath(Platform platform) { //See if the ball has gone below the platform.
+	//Returns true if it has died, false otherwise.
 	if(yPos>platform.getYPos()+platform.PLATFORM_HEIGHT) {
 		return true;
 	}

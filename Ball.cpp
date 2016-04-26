@@ -13,6 +13,7 @@ using namespace std;
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 480;
+const int PLATFORM_WIDTH = 80;
 
 extern const int TOTAL_BRICKS;
 
@@ -67,26 +68,28 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 				if(midBall<midPlat) {
 					xPos -=xVel;
 					yPos -=yVel;
-					xVel=-xVel;
+					xVel=-3 - (midPlat - midBall) / 10;
 					yVel=-yVel;
 		     		}
 				else {
 					yPos -=yVel;
 					xPos -=xVel;
 					yVel=-yVel;
+					xVel = 3 + (midBall - midPlat) / 10;
 		     		}
 	     		} 
 			else { //ball coming in from the right
 		     		if(midBall>=midPlat) {
 					xPos -=xVel;
 					yPos -=yVel;
-					xVel=-xVel;
+					xVel= 3 + (midBall - midPlat) / 10;
 					yVel=-yVel;
 			     	} 
 				else {
 					yPos -=yVel;
 					xPos -=xVel;
 					yVel=-yVel;
+					xVel = -3 - (midPlat - midBall) / 10;
 		     		}
 			}
 		}

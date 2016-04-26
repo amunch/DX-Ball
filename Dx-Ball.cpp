@@ -439,31 +439,42 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 
 		//Render objects
 		//gBackground.render(0,0);
+		
 		platform.render();
 		for(int j=0; j<ballVec.size(); j++) { //loop through vector of balls
 			if(!ballVec[j].checkDeath(platform)) { //if the ball is still good
 				ballVec[j].render(); //render it
-			} else { //ball below line
+			} 
+			else { //ball below line
 				ballVec.erase(ballVec.begin()+j); //erase it from vector
+				//Case where no more balls on screen will be dealt with later
 			}
 		}
+		
+		//Render bullet and box if they should be on the screen.
 		if(box.getShow()) {  //box on screen
 			box.render(); 
 		}
 		if(bullet.getShowBullet()) {
 			bullet.render();
 		}
+	
+		//Render the bricks if they are not of type 0.
+		//Will be type 0 if they were hit or never existed.	
 		for(int i = 0; i < TOTAL_BRICKS; i++) {
 			if(brickSet[i]->getType() != 0) { //if box is there	
 				brickSet[i]->render();
 			}
 		}
+		
 		//render text
 		SDL_Color textColor = { 0, 50, 150 }; //text color
 		string strScore = static_cast<ostringstream*>( &(ostringstream() <<score) )->str(); //convert to string
+		//Render the text for the score.
 		gScoreText.loadFromRenderedText("Score: "+strScore, textColor );
 		gScoreText.render(0,0); //render score text
 		string strLives = static_cast<ostringstream*>( &(ostringstream() <<lives) )->str(); //convert to string
+		//Render the text for the lives.
 		gLivesText.loadFromRenderedText("Lives: "+strLives,textColor);
 		gLivesText.render(SCREEN_WIDTH-100,0);	
 	
@@ -471,6 +482,8 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		SDL_RenderPresent( gRenderer );
 		countedFrames++;
 
+		//If the frame rate gets over the desired 60 FPS, 
+		//Delay the loop for as long as needed.
 		int frameTicks = capTimer.getTicks();
 		if(frameTicks < SCREEN_TICK_PER_FRAME) {
 			SDL_Delay(SCREEN_TICK_PER_FRAME - frameTicks);
@@ -478,12 +491,16 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 	}
 	return wonLvl;
 }		
+
 //show the title screen
 void titleScreen(string file) {
 	SDL_Event titleEvent; //event handler for title
+
 	bool quitTitle = false; //title loop condition
+
 	LTexture gTitle;
 	gTitle.loadFromFile("sprites/"+file+".bmp"); //load picture
+
 	while (!quitTitle) {
 		while( SDL_PollEvent( &titleEvent ) != 0 ) {
 			//User requests quit
@@ -495,27 +512,33 @@ void titleScreen(string file) {
 				quitTitle = true;
 			}
 		}
+		
 		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
 		SDL_RenderClear( gRenderer ); //clear screen
+			
 		gTitle.render(0,0); //show title screen
+		
 		if(file!="titleScreen") { //render score
 			SDL_Color textColor = { 0, 50, 150 };
 			string strScore = static_cast<ostringstream*>( &(ostringstream() <<score) )->str(); //convert to string
 			gScoreText.loadFromRenderedText("Score: "+strScore, textColor );
 			gScoreText.render(SCREEN_WIDTH/2-50,300); //render score text
 		}
-		SDL_RenderPresent( gRenderer );
 		
+		SDL_RenderPresent( gRenderer );
 	}
 }
 
 //show the level intro screen
 void levelIntro(int currentLvl) {
 	SDL_Event lvlEvent; //event handler for title
+
 	bool quitLvl = false; //title loop condition
+
 	LTexture gLvl;
 	string currlvl = static_cast<ostringstream*>( &(ostringstream() <<currentLvl) )->str(); //convert to string
 	gLvl.loadFromFile("sprites/levelintro"+currlvl+".bmp"); //load picture
+
 	while (!quitLvl) {
 		while( SDL_PollEvent( &lvlEvent ) != 0 ) {
 			//User requests quit
@@ -529,9 +552,10 @@ void levelIntro(int currentLvl) {
 		}
 		SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
 		SDL_RenderClear( gRenderer ); //clear screen
+
 		gLvl.render(0,0); //show title screen
+
 		SDL_RenderPresent( gRenderer );
-		
 	}
 }	
 
@@ -553,38 +577,54 @@ int main( int argc, char* args[] ) {
 			bool wonGame=false; bool loseGame=false;
 			titleScreen("titleScreen"); //run the title screen
 
-			srand(time(NULL));
+			srand(time(NULL)); //Re-seed the random number generator.
+
+			//Create objects of each class required to play.
 			Platform platform;
 			Ball ball;
 			Bullet bullet;
 			vector<Ball> ballVec;
 			ballVec.push_back(ball);
+			//Instantiate the box off screen.
 			Box box(700,700,0);
+		
 			while(!wonGame && !loseGame) {
+
 				levelIntro(currentLevel);
+
 				//The platform that will be moving left and right on the screen
 				platform.reset(); //reset the platform
 				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
+
 				//the ball that will be bouncing around
 				Ball newball; 
 				ballVec.clear(); //clear the vector and add one new ball
 				ballVec.push_back(newball);
+		
+				//Set the box and bullet off the screen and not rendering.
 				box.setPos(700, 700, 0);
 				bullet.setPos(700, 700, false);	
+
 				setBricks(brickSet,currentLevel); //load new level
+
 				if(runLevel(brickSet,box,platform,ballVec,bullet)) { //level over
 					score=score+100*currentLevel; //add to the score
 					currentLevel++;//next level!
+
 					if(currentLevel>=maxLevel) { //finished all levels
 						wonGame=true; // won game
 					}
-				} else { //lost the level
+
+				} 
+				else { //lost the level
 					loseGame=true;
 				}
 			}
+			
 			if(wonGame) { //won the game
 				titleScreen("winscreen"); //reuse title screen to show win
-			} else { //lost the game
+			} 
+			else { //lost the game
 				titleScreen("losescreen"); //reuse title screen to show lose
 			}	
 		}

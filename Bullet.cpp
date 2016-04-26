@@ -22,7 +22,7 @@ Bullet::Bullet() {
 	yPos = 700;
 
 	//Initialize the velocity to go up.
-	yVel = -3;
+	yVel = -5;
 	xVel = 0;
 	showBullet=false;
 }

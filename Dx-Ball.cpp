@@ -312,6 +312,8 @@ bool waitForNewBall(SDL_Event e) {
 			} else if( e.type == SDL_QUIT ) { //want to quit game
 					return true;
 			}
+			SDL_PumpEvents();
+                	SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);	
 		}	
 	}
 	return false; //do not want to quit game
@@ -333,32 +335,22 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 	int countedFrames = 0;
 	fpsTimer.start();	
 
+	int reset = 0;
+
 	while( !quit ) {
 		capTimer.start(); //start timer
 
 		//Run this sequence if there are no more balls on the screen.
-		if(ballVec.size() < 1) { //if no more balls
+		if(ballVec.size() < 1 && !reset) { //if no more balls
 			lives--; //remove a life
 			if(lives < 1) {  //no lives left
 				quit = 1;
 			} else { //still have lives left
-				//Make sure platform events are clear.
-				platform.move();
-				platform.reset();
-				platform.handleEvent(e, bullet);		
-				
+				//Make sure platform events are clear.			
+				reset = 1;
 				//Reload the platform and get rid of the gun powerup.
 				gPlatformTexture.loadFromFile("sprites/basicPlatform.bmp");
 				platform.setHasGun(false); //get rid of gun powerup
-
-				Ball ball2; //add a new ball
-
-				if(waitForNewBall(e)) { //wait for ball and check if wanted to quit
-					quit = 1;
-				}
-				
-				//Add the new ball to the ball vector.
-				ballVec.push_back(ball2);
 			} 
 		}
 
@@ -369,8 +361,22 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				quit = true;
 			}
 			//Handle input for the platform movement
-			if(platform.handleEvent(e, bullet))
-				bullet.setPos(platform.getXPos() + 42, platform.getYPos(), true);
+			if(reset) {
+				if( e.type == SDL_KEYDOWN ) {				
+					if(e.key.keysym.sym==SDLK_RETURN) { //pressed enter						
+							reset = 0;
+							Ball ball2; //add a new ball
+				
+							//Add the new ball to the ball vector.
+							ballVec.push_back(ball2);
+					}	
+				}
+			}		
+			if(platform.handleEvent(e, bullet)) {
+				if(!reset) {				
+					bullet.setPos(platform.getXPos() + 42, platform.getYPos(), true);
+				}			
+			}				
 			SDL_PumpEvents();
 	                SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
 		}
@@ -390,7 +396,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		platform.move();
 		for(int g=0; g<ballVec.size(); g++) {
 			if(ballVec[g].move(platform, brickSet) && box.offScreen()) {
-				int powerup = rand() % 4; //random number to get powerup
+				int powerup = rand() % 6; //random number to get powerup
 				if (powerup==1) { //got box!
 					//Draw the box if the random number has given you a box.
 					int boxX = ballVec[g].getXPos(); 
@@ -401,7 +407,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				score += 5;
 			}
 		}
-		if(box.getShow()) { //box is on screen
+		if(box.getShow() && !reset) { //box is on screen
 			box.setShow(box.move()); //move downwards
 			if(box.hitPlatform(platform)) { //platform hit box
  				box.setPos(700,700,0); //move box off screen
@@ -466,6 +472,12 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 				brickSet[i]->render();
 			}
 		}
+
+		if(reset) {
+			SDL_Color textColor = { 0, 50, 150 }; //text color
+			gWaitText.loadFromRenderedText("Press Enter for New Ball", textColor );
+			gWaitText.render(155,300); //Render text
+		}
 		
 		//render text
 		SDL_Color textColor = { 0, 50, 150 }; //text color
@@ -476,7 +488,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		string strLives = static_cast<ostringstream*>( &(ostringstream() <<lives) )->str(); //convert to string
 		//Render the text for the lives.
 		gLivesText.loadFromRenderedText("Lives: "+strLives,textColor);
-		gLivesText.render(SCREEN_WIDTH-100,0);	
+		gLivesText.render(SCREEN_WIDTH-125,0);	
 	
 		//Update screen
 		SDL_RenderPresent( gRenderer );
@@ -488,6 +500,7 @@ bool runLevel(Brick* brickSet[], Box box, Platform platform, vector<Ball> ballVe
 		if(frameTicks < SCREEN_TICK_PER_FRAME) {
 			SDL_Delay(SCREEN_TICK_PER_FRAME - frameTicks);
 		}
+
 	}
 	return wonLvl;
 }		
@@ -573,7 +586,7 @@ int main( int argc, char* args[] ) {
 		}
 		else {	
 			int currentLevel=1;
-			int maxLevel=3;
+			int maxLevel=5;
 			bool wonGame=false; bool loseGame=false;
 			titleScreen("titleScreen"); //run the title screen
 
@@ -611,7 +624,7 @@ int main( int argc, char* args[] ) {
 					score=score+100*currentLevel; //add to the score
 					currentLevel++;//next level!
 
-					if(currentLevel>=maxLevel) { //finished all levels
+					if(currentLevel > maxLevel) { //finished all levels
 						wonGame=true; // won game
 					}
 

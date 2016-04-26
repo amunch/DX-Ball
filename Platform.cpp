@@ -49,6 +49,8 @@ bool Platform::handleEvent( SDL_Event& e, Bullet b ) {
         		case SDLK_RIGHT: mVelX -= PLATFORM_VEL; break;
       		}
     	}
+	SDL_PumpEvents();
+        SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
 	return false;
 }
 

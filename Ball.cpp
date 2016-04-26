@@ -32,8 +32,8 @@ Ball::Ball() {
 	ballBox.h = BALL_HEIGHT;
 
 	//Initialize the velocity to go diagonally right.
-	yVel = 3;
-	xVel = 3;
+	yVel = 4;
+	xVel = 4;
 }
 
 bool Ball::move(Platform platform, Brick* bricks[]) {
@@ -68,7 +68,7 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 				if(midBall<midPlat) {
 					xPos -=xVel;
 					yPos -=yVel;
-					xVel=-3 - (midPlat - midBall) / 10; 
+					xVel=-4 - (midPlat - midBall) / 10; 
 					//If the ball hits on the edge of the platform, it will speed up in the x direction.
 					yVel=-yVel;
 		     		}
@@ -76,21 +76,21 @@ bool Ball::move(Platform platform, Brick* bricks[]) {
 					yPos -= yVel;
 					xPos -= xVel;
 					yVel = -yVel;
-					xVel = 3 + (midBall - midPlat) / 10;
+					xVel = 4 + (midBall - midPlat) / 10;
 		     		}
 	     		} 
 			else { //ball coming in from the right
 		     		if(midBall>=midPlat) {
 					xPos -= xVel;
 					yPos -= yVel;
-					xVel= 3 + (midBall - midPlat) / 10;
+					xVel= 4 + (midBall - midPlat) / 10;
 					yVel= -yVel;
 			     	} 
 				else {
 					yPos -= yVel;
 					xPos -= xVel;
 					yVel = -yVel;
-					xVel = -3 - (midPlat - midBall) / 10;
+					xVel = -4 - (midPlat - midBall) / 10;
 		     		}
 			}
 		}

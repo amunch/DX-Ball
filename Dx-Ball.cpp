@@ -213,7 +213,7 @@ bool setBricks(Brick* bricks[],int currentLvl) {
 	string filename="maps/map"+currlvl+".map";	
 	ifstream map(filename.c_str());
 	
-	if(map == NULL) {
+	if(!map) {
 		cout << "Could not open map" << endl;
 		bricksLoaded = false;
 	}
